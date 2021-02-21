@@ -6,7 +6,7 @@ import (
 )
 
 var paymentDb = []*lib.Payment{
-	&lib.Payment{
+	{
 		Id:     "abcd",
 		Amount: 1000,
 	},
@@ -20,4 +20,9 @@ func GetPayment(id string) (*lib.Payment, error) {
 	}
 
 	return nil, errors.Errorf("Payment(id=%s) not found", id)
+}
+
+func SavePayment(payment *lib.Payment) error {
+	paymentDb = append(paymentDb, payment)
+	return nil
 }

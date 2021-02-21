@@ -27,6 +27,19 @@ func (p *Payment) ToJson(w io.Writer) error {
 	return enc.Encode(p)
 }
 
+func PaymentFromJson(r io.Reader) (*Payment, error) {
+	payment := &Payment{}
+
+	dec := json.NewDecoder(r)
+
+	err := dec.Decode(payment)
+	if err != nil {
+		return nil, err
+	}
+
+	return payment, nil
+}
+
 type PaymentMethodKind int
 
 const (

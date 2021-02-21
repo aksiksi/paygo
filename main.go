@@ -13,18 +13,28 @@ import (
 )
 
 func main() {
+	port, ok := os.LookupEnv("PAYGO_PORT")
+	if !ok {
+		port = "9000"
+	}
+
 	logger := log.New(os.Stdout, "paygo ", log.LstdFlags)
 
 	ph := handlers.NewPayment(logger)
 
-	mux := mux.NewRouter().StrictSlash(true)
+	mux := mux.NewRouter()
 
 	getRouter := mux.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/v1/payment", ph.GetPayments)
+
 	getRouter.HandleFunc("/v1/payment/{id}", ph.GetPayment)
+	getRouter.HandleFunc("/v1/payment/{id}/", ph.GetPayment)
+
+	postRouter := mux.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/v1/payment", ph.PostPayment)
+	postRouter.HandleFunc("/v1/payment/", ph.PostPayment)
 
 	server := http.Server{
-		Addr:         ":9000",
+		Addr:         ":" + port,
 		Handler:      mux,
 		ErrorLog:     logger,
 		ReadTimeout:  5 * time.Second,
@@ -33,7 +43,7 @@ func main() {
 	}
 
 	go func() {
-		logger.Println("Starting server on port 9090")
+		logger.Printf("Starting server on port %s\n", port)
 
 		err := server.ListenAndServe()
 		if err != nil {
