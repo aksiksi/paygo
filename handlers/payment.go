@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/aksiksi/paygo/data"
 	"github.com/aksiksi/paygo/db"
-	"github.com/aksiksi/paygo/lib"
 	"github.com/gorilla/mux"
 )
 
@@ -40,7 +40,7 @@ func (p *Payment) GetPayment(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (p *Payment) PostPayment(resp http.ResponseWriter, req *http.Request) {
-	payment, err := lib.PaymentFromJson(req.Body)
+	payment, err := data.PaymentFromJson(req.Body)
 	if err != nil {
 		p.log.Println(err)
 		http.Error(resp, "Invalid payment JSON provided", http.StatusBadRequest)
