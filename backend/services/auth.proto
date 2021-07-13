@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package paygo.auth;
+
+message AuthRequest {
+    string name = 1;
+}
+
+message AuthResponse {
+    bool allowed = 1;
+}
+
+service Auth {
+    rpc IsAllowed(AuthRequest) returns (AuthResponse);
+}

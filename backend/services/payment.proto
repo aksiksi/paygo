@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package paygo.payment;
+
+message PaymentRequest {
+    string card = 1;
+}
+
+message PaymentResponse {
+    bool success = 1;
+    string status = 2;
+}

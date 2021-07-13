@@ -1,0 +1,15 @@
+[package]
+name = "paygo-auth"
+version = "0.1.0"
+authors = ["Assil Ksiksi <cyph0nik@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+tonic = "0.5"
+prost = "0.8"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+log = "0.4"
+env_logger = "0.8"
+
+[build-dependencies]
+tonic-build = "0.5"
