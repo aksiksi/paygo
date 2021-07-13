@@ -2,32 +2,48 @@
 
 ## Overview
 
-`paygo` is a "fake" payment processor backend service (think: Stripe backend). This service process payment requests coming from third-party applications.
+`paygo` is a "fake" payment processor service (think: Stripe). This service processes payment requests coming from third-party applications.
 
-This is an internal service. In other words, third-party apps do not talk to this service directly. The overall flow looks like this:
+Here is the overall flow of operations:
 
-1. User hits "purchase" on third-party website
-2. Third-party app redirects the user to our frontend
+1. User hits "purchase" on a third-party website
+2. Third-party app redirects the user to the `paygo` frontend (single-page app (?))
 3. User enters payment info
-4. Frontend app forwards the payment to this service
+4. `paygo` frontend app forwards the request to this service
 5. Once this service processes the payment, it returns the result and payment ID to the frontend
 6. The frontend informs the user of the result
-7. Frontend redirects the user to the third-party app
+7. Frontend redirects the user back to the third-party app
 
-## API Endpoints
+## Services
 
-* `/v1/checkout`
-  * POST: Initiate a payment
-    * Returns: payment ID
-* `/v1/payment`
-  * POST: Perform a payment
-  * GET: `/v1/payment/[id]`
-  * Notes:
-    * No other methods allowed: payments are immutable
-    * Any changes need to take the form of a new payment
-* `/v1/subscription`
-  * POST: Start a recurring payment
-  * GET: `/v1/subscription/[id]`
+`paygo` consists of 2 external and 4 internal services. All internal services talk to each other via gRPC.
+
+* External
+  * checkout: Handles requests to checkout from our frontend
+    * Third-party websites are redirected to our frontend
+  * refund: Handles refund requests issued by third-party apps
+* Internal
+  * auth: Authenticates external requests and verifies quotas, billing, etc.
+  * card: CRUD API for Cards - add/update/remove credit cards from the DB
+    * Returns a unique Card ID to the caller
+  * charge: Initiates a Charge for some amount on the given Card
+    * Returns a unique Charge ID to the caller
+  * transaction: Performs the final transaction via the bank's interface
+
+### Checkout
+
+### Refund
+
+TBD
+
+### Auth
+
+
+### Card
+
+### Charge
+
+### Transaction
 
 ### Resources
 
