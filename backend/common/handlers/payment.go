@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/aksiksi/paygo/data"
-	"github.com/aksiksi/paygo/db"
+	"github.com/aksiksi/paygo/common/data"
+	"github.com/aksiksi/paygo/common/db"
 	"github.com/gorilla/mux"
 )
 

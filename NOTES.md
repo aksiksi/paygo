@@ -16,6 +16,9 @@ This is an internal service. In other words, third-party apps do not talk to thi
 
 ## API Endpoints
 
+* `/v1/checkout`
+  * POST: Initiate a payment
+    * Returns: payment ID
 * `/v1/payment`
   * POST: Perform a payment
   * GET: `/v1/payment/[id]`

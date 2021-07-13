@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/aksiksi/paygo/handlers"
+	"github.com/aksiksi/paygo/common/handlers"
 	"github.com/gorilla/mux"
 )
 
