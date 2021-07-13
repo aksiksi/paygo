@@ -1,9 +1,9 @@
 use tonic::{transport::Server, Request, Response, Status};
 
-use services::auth::{AuthRequest, AuthResponse};
-use services::auth::auth_server::{Auth, AuthServer};
+use proto::auth::{AuthRequest, AuthResponse};
+use proto::auth::auth_server::{Auth, AuthServer};
 
-mod services;
+mod proto;
 
 #[derive(Debug, Default)]
 struct AuthService;
