@@ -108,6 +108,33 @@ export class CardForm extends React.Component<any, CardFormState> {
         }
     }
 
+    /**
+     * Renders the CVV input with the correct size based on the current card type.
+     *
+     * @returns The input element for the CVV.
+     */
+    renderCvvInput(className: string) {
+        let maxLength = 3, codeName = "CVV"
+
+        if (this.state.cardType === CardType.Amex) {
+            maxLength = 4
+            codeName = "CID"
+        }
+
+        return <input
+            placeholder={codeName}
+            maxLength={maxLength}
+            className={className}
+            type="text"
+            id="creditCardCvv"
+        />
+    }
+
+    /**
+     * Renders the credit card + CVV + expiry date form inputs.
+     *
+     * @returns JSX element for the credit card information.
+     */
     renderCardInput() {
         // Default border is gray
         let border: string = "border-gray-300 focus:border-yellow-500 focus:ring-yellow-500" 
@@ -130,10 +157,10 @@ export class CardForm extends React.Component<any, CardFormState> {
                 </div>
                 <div className="flex flex-wrap">
                     <div className="w-1/2">
-                        <input placeholder="CVV" className="w-full h-10 px-3 text-base rounded-lg placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500" type="text" id="creditCardFirstName" />
+                        {this.renderCvvInput("w-full h-10 px-3 text-base rounded-lg placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500")}
                     </div>
                     <div className="w-1/2">
-                        <input placeholder="MM/YY" className="w-full h-10 px-3 text-base rounded-lg placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500" type="text" id="creditCardLastName" />
+                        <input placeholder="MM/YY" className="w-full h-10 px-3 text-base rounded-lg placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500" type="text" id="creditCardExpiry" />
                     </div>
                 </div>
             </div>
