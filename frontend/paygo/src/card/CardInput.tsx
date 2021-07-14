@@ -13,13 +13,13 @@ import "../index.css"
 // Expose the card type strings
 const { types: cardTypeStrings } = creditCardType
 
-function getCardType(validityInfo: CardNumberVerification): CardType {
+function getCardType(validityInfo: CardNumberVerification): CardInputState {
     let cardType
 
     if (!validityInfo.isPotentiallyValid && !validityInfo.isValid) {
-        return CardType.Invalid
+        return { cardType: CardType.Invalid, cardIsValid: false }
     } else if (!validityInfo.card) {
-        return CardType.Unknown
+        return { cardType: CardType.Unknown, cardIsValid: false }
     }
 
     switch (validityInfo.card.type) {
@@ -37,11 +37,11 @@ function getCardType(validityInfo: CardNumberVerification): CardType {
             break
         default:
             // Unsupported card type
-            cardType = CardType.Invalid
+            cardType = CardType.Other
             break
     }
 
-    return cardType
+    return { cardType, cardIsValid: validityInfo.isValid }
 }
 
 export enum CardType {
@@ -56,6 +56,7 @@ export enum CardType {
 
 class CardInputState {
     cardType: CardType = CardType.Unknown
+    cardIsValid?: boolean
 }
 
 export class CardInput extends React.Component<any, CardInputState> {
@@ -79,9 +80,8 @@ export class CardInput extends React.Component<any, CardInputState> {
             let cardNumber: string = elem.value
 
             let validity: CardNumberVerification = cardNumberValidator(cardNumber)
-            let cardType = getCardType(validity)
 
-            return { cardType }
+            return getCardType(validity)
         })
     }
 
@@ -109,16 +109,17 @@ export class CardInput extends React.Component<any, CardInputState> {
     }
 
     render() {
-        let inputClass: string;
+        // Default border is gray
+        let border: string = "border-gray-300 focus:border-yellow-500 focus:ring-yellow-500" 
 
-        // Highlight the credit card input based on detected type/validity
-        if (this.state.cardType == CardType.Unknown) {
-            inputClass = "mt-1 block pl-14 w-full border border-gray-300 rounded-lg shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
-        } else if (this.state.cardType == CardType.Invalid) {
-            inputClass = "mt-1 block pl-14 w-full border border-red-300 rounded-lg shadow-sm focus:border-red-300 focus:ring-red-300"
-        } else {
-            inputClass = "mt-1 block pl-14 w-full border border-green-300 rounded-lg shadow-sm focus:border-green-300 focus:ring-green-300"
+        // Highlight the credit card input based on detected type and validity
+        if (this.state.cardIsValid && this.state.cardType != CardType.Other) {
+            border = "border-green-300 focus:border-green-300 focus:ring-green-300"
+        } else if (!this.state.cardIsValid && this.state.cardType == CardType.Invalid) {
+            border = "border-red-300 focus:border-red-300 focus:ring-red-300"
         }
+
+        const inputClass = `mt-1 block pl-14 w-full rounded-lg shadow-sm ${border}`
 
         return (
             <label className="block relative">
