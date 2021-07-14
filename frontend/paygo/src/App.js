@@ -1,7 +1,7 @@
 import './App.css'
 import './index.css'
 
-import { CardForm } from "./CardForm"
+import { CardForm } from "./card/CardForm"
 
 function App() {
   return (
