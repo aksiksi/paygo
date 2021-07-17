@@ -1,11 +1,7 @@
 import React from "react"
-import CardForm from "./card/CardForm"
+import CardForm from "./CardForm"
 
 class Checkout extends React.Component<any, any> {
-  constructor(props: any) {
-    super(props)
-  }
-
   render() {
     // TODO: Fix for mobile
     return (

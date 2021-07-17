@@ -3,11 +3,11 @@ import { creditCardType } from "card-validator"
 import { cardNumber as cardNumberValidator, CardNumberVerification } from "card-validator/dist/card-number"
 import Joi, { CustomHelpers } from "joi"
 
-import { ReactComponent as VisaLogo } from "./svgs/visa.svg"
-import { ReactComponent as MastercardLogo } from "./svgs/mastercard.svg"
-import { ReactComponent as AmexLogo } from "./svgs/amex.svg"
-import { ReactComponent as DiscoverLogo } from "./svgs/discover.svg"
-import { ReactComponent as GenericCardLogo } from "./svgs/generic.svg"
+import { ReactComponent as VisaLogo } from "../svgs/cards/visa.svg"
+import { ReactComponent as MastercardLogo } from "../svgs/cards/mastercard.svg"
+import { ReactComponent as AmexLogo } from "../svgs/cards/amex.svg"
+import { ReactComponent as DiscoverLogo } from "../svgs/cards/discover.svg"
+import { ReactComponent as GenericCardLogo } from "../svgs/cards/generic.svg"
 
 import "../index.css"
 

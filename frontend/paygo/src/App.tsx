@@ -1,7 +1,7 @@
 import "./App.css"
 import "./index.css"
 
-import Checkout from "./Checkout"
+import Checkout from "./components/Checkout"
 
 function App() {
   return (
