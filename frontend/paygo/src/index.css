@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.card-form-input {
+    @apply placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500
+}

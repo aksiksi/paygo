@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from "react"
 import { creditCardType } from "card-validator"
 import { cardNumber as cardNumberValidator, CardNumberVerification } from "card-validator/dist/card-number"
-import { FormState, useForm, UseFormRegister } from "react-hook-form"
+import Joi, { CustomHelpers } from "joi"
 
 import { ReactComponent as VisaLogo } from './svgs/visa.svg'
 import { ReactComponent as MastercardLogo } from './svgs/mastercard.svg'
@@ -29,26 +29,55 @@ export enum CardType {
  *
  * @returns The input element for the CVV.
  */
-function CvvInput(props: {
-    cardType: CardType,
-    className?: string
-    register: UseFormRegister<CardFormFields>,
-}) {
+function useCvvInput(cardType: CardType, setCardFormState: any): any {
+    // Determine the max input length and card code name
     let maxLength = 3, codeName = "CVV"
-
-    if (props.cardType === CardType.Amex) {
+    if (cardType === CardType.Amex) {
         maxLength = 4
         codeName = "CID"
     }
 
-    return <input
-        placeholder={codeName}
-        maxLength={maxLength}
-        className={props.className}
-        type="text"
-        id="creditCardCvv"
-        {...props.register("creditCardCvv", { required: true, pattern: /[0-9]{3,4}/ })}
-    />
+    function onChange(event: FormEvent) {
+        const elem = event.target as HTMLInputElement
+
+        setCardFormState((state: CardFormState) => {
+            return {
+                ...state,
+                formData: {
+                    ...state.formData,
+                    creditCardCvv: elem.value,
+                }
+            }
+        })
+    }
+
+    return {
+        onChange,
+        maxLength,
+        placeholder: codeName,
+    }
+}
+
+function useExpiryInput(setCardFormState: any): any {
+    function onChange(event: FormEvent) {
+        const elem = event.target as HTMLInputElement
+
+        setCardFormState((state: CardFormState) => {
+            // TODO: Insert slash between MM and YY
+            return {
+                ...state,
+                formData: {
+                    ...state.formData,
+                    creditCardExpiry: elem.value,
+                }
+            }
+        })
+    }
+
+    return {
+        placeholder: "MM / YY",
+        onChange,
+    }
 }
 
 /**
@@ -74,17 +103,11 @@ function CardLogo(props: {cardType: CardType}) {
     }
 }
 
-class CardFormState {
-    cardNumber: string = ""
-    cardType: CardType = CardType.Unknown
-    cardIsValid?: boolean
-}
-
-function getCardInfo(validityInfo: CardNumberVerification): { cardType: CardType, cardIsValid: boolean } {
+function getCardInfo(validityInfo: CardNumberVerification): { cardType: CardType, isCardValid: boolean } {
     if (!validityInfo.isPotentiallyValid && !validityInfo.isValid) {
-        return { cardType: CardType.Invalid, cardIsValid: false }
+        return { cardType: CardType.Invalid, isCardValid: false }
     } else if (!validityInfo.card) {
-        return { cardType: CardType.Unknown, cardIsValid: false }
+        return { cardType: CardType.Unknown, isCardValid: false }
     }
 
     let cardType
@@ -108,7 +131,7 @@ function getCardInfo(validityInfo: CardNumberVerification): { cardType: CardType
             break
     }
 
-    return { cardType, cardIsValid: validityInfo.isValid }
+    return { cardType, isCardValid: validityInfo.isValid }
 }
 
 /**
@@ -132,137 +155,9 @@ function addSpacesToCardNumber(cardNumber: string): string {
     return newCardNumber
 }
 
-/**
- * Whenever the card number input changes, update the internal card type state.
- * Also, insert spaces in the card number.
- *
- * @param event The input event for the card number field
- */
-function onCardNumberChange(event: FormEvent, setState: any) {
-    setState((_: CardFormState) => {
-        let elem = event.target as HTMLInputElement
-        let cardNumber: string = elem.value.replaceAll(" ", "")
+type CardFormDataFields = "creditCardNumber" | "creditCardCvv" | "creditCardExpiry" | "creditCardFirstName" | "creditCardLastName"
 
-        let validity: CardNumberVerification = cardNumberValidator(cardNumber)
-        const {cardType, cardIsValid} = getCardInfo(validity)
-
-        return {
-            cardNumber,
-            cardType,
-            cardIsValid,
-        }
-    })
-}
-
-/**
- * Renders the credit card + CVV + expiry date form inputs.
- *
- * @returns JSX element for the credit card information.
- */
-function CardInput(
-    props: {
-        register: UseFormRegister<CardFormFields>,
-        formState: FormState<CardFormFields>,
-    }) {
-    const [cardFormState, setCardFormState] = useState(new CardFormState())
-
-    const { onChange: onChangeOrig, ...registerRest } =
-        props.register("creditCardNumber", {
-            required: true,
-            validate: (_: string) => {
-                return cardFormState.cardIsValid
-            }
-        })
-
-    // Override the onChange handler with some custom logic
-    const onChange = (event: FormEvent) => {
-        // Trigger the original handler
-        onChangeOrig(event)
-
-        // Prevent changes to the card number input from triggering a new event
-        event.stopPropagation()
-
-        // Update the card input based on the current state
-        onCardNumberChange(event, setCardFormState)
-    }
-
-    // Default input border is gray
-    let cardBorder = "border border-gray-300 focus:border-yellow-500 focus:ring-yellow-500" 
-    let cvvBorder = "border border-gray-300 focus:border-yellow-500 focus:ring-yellow-500" 
-    let expiryBorder = "border border-gray-300 focus:border-yellow-500 focus:ring-yellow-500" 
-
-    const cardError = props.formState.errors.creditCardNumber
-    const cvvError = props.formState.errors.creditCardCvv
-    const expiryError = props.formState.errors.creditCardExpiry
-
-    const errors = []
-
-    if (cardError) {
-        if (cardError?.type === "required") {
-            errors.push("Card number is required")
-        } else if (cardError?.type === "validate") {
-            errors.push("Card number is incomplete")
-        }
-    }
-
-    if (cvvError) {
-        if (cvvError?.type === "required") {
-            errors.push("CVV is required")
-        } else if (cvvError?.type === "pattern") {
-            errors.push("CVV must be 3-4 digits")
-        }
-    }
-
-    if (expiryError) {
-        if (expiryError?.type === "required") {
-            errors.push("Expiry date is required")
-        } else if (expiryError?.type === "pattern") {
-            errors.push("Expiry date must be MM/YY")
-        }
-    }
-
-    return (
-        <div>
-            <div>
-                <label>Credit card</label>
-                <span className="block relative">
-                    <CardLogo cardType={cardFormState.cardType} />
-                    <input
-                        type="text"
-                        value={addSpacesToCardNumber(cardFormState.cardNumber)}
-                        placeholder="4111 1111 1111 1111"
-                        className={`mt-1 block pr-12 w-full rounded-sm rounded-t-lg shadow-sm ${cardBorder}`}
-                        // TODO(aksiksi): This might need to be upto 23 - 19 + 3
-                        maxLength={19} // 16 digits + 3 spaces
-                        onChange={onChange}
-                        {...registerRest}
-                    />
-                </span>
-            </div>
-            <div className="flex flex-wrap -mx-1">
-                <div className="w-1/2 pl-1">
-                    <CvvInput
-                        cardType={cardFormState.cardType}
-                        className={`w-full h-10 px-3 text-base rounded-sm rounded-bl-lg placeholder-gray-600 ${cvvBorder}`}
-                        register={props.register}
-                    />
-                </div>
-                <div className="w-1/2 pr-1">
-                    <input
-                        type="text"
-                        placeholder="MM/YY"
-                        className={`w-full h-10 px-3 text-base rounded-sm rounded-br-lg placeholder-gray-600 ${expiryBorder}`}
-                        id="creditCardExpiry"
-                        {...props.register("creditCardExpiry", { required: true, pattern: /[0-9]{2}\/[0-9]{2}/})}
-                        />
-                </div>
-            </div>
-            { errors && <span className="text-sm text-red-700">{ errors[0] }</span> }
-        </div>
-    )
-}
-
-class CardFormFields {
+class CardFormData {
     creditCardNumber: string = ""
     creditCardCvv: string = ""
     creditCardExpiry: string = ""
@@ -270,41 +165,212 @@ class CardFormFields {
     creditCardLastName: string = ""
 }
 
-export function CardForm() {
-    const { register, handleSubmit, formState } = useForm({ defaultValues: new CardFormFields() })
+class CardFormState {
+    // Form state
+    cardType: CardType = CardType.Unknown
 
-    const onSubmit = (data: any) => console.log(data)
+    // Form information
+    formData: CardFormData = new CardFormData()
+    formErrors: string[] = []
+}
+
+/**
+ * Renders the credit card + CVV + expiry date form inputs.
+ *
+ * @returns JSX properties for the credit card field.
+ */
+function useCardInput(setCardFormState: any) {
+    /**
+     * Whenever the card number input changes, update the internal card type state.
+     *
+     * @param event The input event for the card number field
+     */
+    function onChange(event: FormEvent) {
+        setCardFormState((state: CardFormState) => {
+            let elem = event.target as HTMLInputElement
+            let cardNumber: string = elem.value.replaceAll(" ", "")
+
+            let validity: CardNumberVerification = cardNumberValidator(cardNumber)
+            const {cardType} = getCardInfo(validity)
+
+            return {
+                ...state,
+                cardType,
+                formData: {
+                    ...state.formData,
+                    creditCardNumber: cardNumber,
+                }
+            }
+        })
+    }
+
+    return {
+        onChange,
+        // TODO(aksiksi): This might need to be upto 23 - 19 + 3
+        maxLength: 19, // 16 digits + 3 spaces
+    }
+}
+
+// Custom Joi validator for a credit card number
+function validateCardNumber(value: string, helpers: CustomHelpers<any>) {
+    const { isCardValid } = getCardInfo(cardNumberValidator(value))
+    return isCardValid ? value : helpers.error("any.invalid")
+}
+
+// Schema for the form fields
+const cardFormSchema = Joi.object({
+    creditCardNumber: Joi.string().pattern(/[0-9]{16}/).custom(validateCardNumber).required(),
+    creditCardCvv: Joi.string().pattern(/[0-9]{3,4}/).required(),
+    creditCardExpiry: Joi.string().pattern(/[0-9]{2}\/[0-9]{2}/).required(),
+    creditCardFirstName: Joi.string().required(),
+    creditCardLastName: Joi.string().required(),
+})
+
+function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
+    const mappings: any = {
+        "string.pattern.base": {
+            "creditCardNumber": "Credit card number must consist of 16 digits",
+            "creditCardCvv": "CVV must contain 3 or 4 digits",
+            "creditCardExpiry": "Expiry date must be of the form: MM/YY",
+        },
+        "any.invalid": {
+            "creditCardNumber": "Credit card number is invalid",
+        },
+        "any.required": {
+            "creditCardNumber": "Credit card number is required",
+            "creditCardCvv": "CVV is required",
+            "creditCardExpiry": "Expiry date is required",
+            "creditCardFirstName": "First name is required",
+            "creditCardLastName": "Last name is required",
+        },
+        "string.empty": {
+            "creditCardNumber": "Credit card number is required",
+            "creditCardCvv": "CVV is required",
+            "creditCardExpiry": "Expiry date is required",
+            "creditCardFirstName": "First name is required",
+            "creditCardLastName": "Last name is required",
+        }
+    }
+
+    return mappings[error.type][error.context!.key!] + "."
+}
+
+export function CardForm() {
+    const [cardFormState, setCardFormState] = useState(new CardFormState())
+
+    // Validate all form fields using the schema above
+    function validateForm(_?: FormEvent): boolean {
+        const { error } = cardFormSchema.validate(cardFormState.formData)
+
+        setCardFormState((state: CardFormState) => {
+            let formErrors: string[] = []
+            if (error) {
+                formErrors = error.details.map((error: Joi.ValidationErrorItem, ...rest) => {
+                    return validationErrorToMessage(error)
+                })
+            }
+
+            return {
+                ...state,
+                formErrors,
+            }
+        })
+
+        return error ? false : true
+    }
+
+    function onSubmit(_: any) {
+        if (validateForm()) {
+            console.log(cardFormState.formData)
+        }
+    }
+
+    function setFormValue(event: FormEvent, name: CardFormDataFields) {
+        const elem = event.target as HTMLInputElement
+        setCardFormState((state: CardFormState) => {
+            return {
+                ...state,
+                formData: {
+                    ...state.formData,
+                    [name]: elem.value
+                }
+            }
+        })
+    }
 
     return (
         <div className="w-96 m-auto">
             <form className="w-full space-y-2 text-gray-700">
-                <CardInput register={register} formState={formState} />
+                <div>
+                    <div>
+                        <label>Credit card</label>
+                        <span className="block relative">
+                            <CardLogo cardType={cardFormState.cardType} />
+                            <input
+                                type="text"
+                                className={`mt-1 block pr-12 w-full rounded-sm rounded-t-lg shadow-sm card-form-input`}
+                                value={addSpacesToCardNumber(cardFormState.formData.creditCardNumber)}
+                                placeholder="4111 1111 1111 1111"
+                                required={true}
+                                onBlur={validateForm}
+                                {...useCardInput(setCardFormState)}
+                            />
+                        </span>
+                    </div>
+                    <div className="flex flex-wrap -mx-1">
+                        <div className="w-1/2 pl-1">
+                            <input
+                                type="text"
+                                className={`w-full h-10 px-3 text-base rounded-sm rounded-bl-lg placeholder-gray-600 card-form-input`}
+                                value={cardFormState.formData.creditCardCvv}
+                                required={true}
+                                onBlur={validateForm}
+                                {...useCvvInput(cardFormState.cardType, setCardFormState)}
+                            />
+                        </div>
+                        <div className="w-1/2 pr-1">
+                            <input
+                                type="text"
+                                className={`w-full h-10 px-3 text-base rounded-sm rounded-br-lg placeholder-gray-600 card-form-input`}
+                                id="creditCardExpiry"
+                                value={cardFormState.formData.creditCardExpiry}
+                                required={true}
+                                onBlur={validateForm}
+                                {...useExpiryInput(setCardFormState)}
+                                />
+                        </div>
+                    </div>
+                </div>
 
                 <div className="flex flex-wrap -mx-1 space-y-3 md:space-y-0">
                     <div className="w-full px-1 md:w-1/2">
                         <label className="block mb-1" htmlFor="creditCardFirstName">First name</label>
                         <input
                             type="text"
-                            className="w-full h-10 px-3 text-base rounded-lg placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
+                            className="w-full h-10 px-3 text-base rounded-lg card-form-input"
                             id="creditCardFirstName"
-                            {...register("creditCardFirstName", { required: true } ) }
+                            required={true}
+                            onChange={ (event: FormEvent) => setFormValue(event, "creditCardFirstName") }
+                            onBlur={validateForm}
                         />
-                        { formState.errors.creditCardFirstName && <span className="text-sm text-red-700">Required</span>}
                     </div>
                     <div className="w-full px-1 md:w-1/2">
                         <label className="block mb-1" htmlFor="creditCardLastName">Last name</label>
                         <input
                             type="text"
-                            className="w-full h-10 px-3 text-base rounded-lg placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
+                            className="w-full h-10 px-3 text-base rounded-lg card-form-input"
                             id="creditCardLastName"
-                            {...register("creditCardLastName", { required: true } ) }
+                            required={true}
+                            onChange={ (event: FormEvent) => setFormValue(event, "creditCardLastName") }
+                            onBlur={validateForm}
                         />
-                        { formState.errors.creditCardLastName && <span className="text-sm text-red-700">Required</span>}
                     </div>
                 </div>
 
+                { cardFormState.formErrors && <span className="text-sm text-red-500">{cardFormState.formErrors[0]}</span> }
+
                 <div>
-                    <button className="mt-3 w-full py-2 px-4 rounded-md justify-center bg-yellow-500 text-white" type="submit" onClick={handleSubmit(onSubmit)}>Submit</button>
+                    <button className="mt-3 w-full py-2 px-4 rounded-md justify-center bg-yellow-500 text-white" type="submit" onClick={onSubmit}>Submit</button>
                 </div>
             </form>
         </div>
