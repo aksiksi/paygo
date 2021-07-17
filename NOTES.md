@@ -14,6 +14,8 @@ Here is the overall flow of operations:
 6. The frontend informs the user of the result
 7. Frontend redirects the user back to the third-party app
 
+![Paygo Architecture Diagram](paygo_architecture.svg)
+
 ## Services
 
 `paygo` consists of 2 external and 4 internal services. All internal services talk to each other via gRPC.

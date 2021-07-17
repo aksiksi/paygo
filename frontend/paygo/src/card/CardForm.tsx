@@ -3,11 +3,11 @@ import { creditCardType } from "card-validator"
 import { cardNumber as cardNumberValidator, CardNumberVerification } from "card-validator/dist/card-number"
 import Joi, { CustomHelpers } from "joi"
 
-import { ReactComponent as VisaLogo } from './svgs/visa.svg'
-import { ReactComponent as MastercardLogo } from './svgs/mastercard.svg'
-import { ReactComponent as AmexLogo } from './svgs/amex.svg'
-import { ReactComponent as DiscoverLogo } from './svgs/discover.svg'
-import { ReactComponent as GenericCardLogo } from './svgs/generic.svg'
+import { ReactComponent as VisaLogo } from "./svgs/visa.svg"
+import { ReactComponent as MastercardLogo } from "./svgs/mastercard.svg"
+import { ReactComponent as AmexLogo } from "./svgs/amex.svg"
+import { ReactComponent as DiscoverLogo } from "./svgs/discover.svg"
+import { ReactComponent as GenericCardLogo } from "./svgs/generic.svg"
 
 import "../index.css"
 
@@ -58,12 +58,21 @@ function useCvvInput(cardType: CardType, setCardFormState: any): any {
     }
 }
 
+function formatExpiryDate(expiryDate: string): string {
+    const strippedDate = expiryDate.replace(/\D+/, "")
+
+    if (strippedDate.length >= 3) {
+        return `${strippedDate.substr(0, 2)} / ${strippedDate.substr(2)}`
+    }
+
+    return strippedDate
+}
+
 function useExpiryInput(setCardFormState: any): any {
     function onChange(event: FormEvent) {
         const elem = event.target as HTMLInputElement
 
         setCardFormState((state: CardFormState) => {
-            // TODO: Insert slash between MM and YY
             return {
                 ...state,
                 formData: {
@@ -76,6 +85,7 @@ function useExpiryInput(setCardFormState: any): any {
 
     return {
         placeholder: "MM / YY",
+        maxLength: 7, // MM / YY
         onChange,
     }
 }
@@ -140,7 +150,7 @@ function getCardInfo(validityInfo: CardNumberVerification): { cardType: CardType
  * @param cardNumber Credit card number (without spaces)
  * @returns New credit card number with spaces inserted after every 4th digit
  */
-function addSpacesToCardNumber(cardNumber: string): string {
+function formatCardNumber(cardNumber: string): string {
     let newCardNumber: string = ""
 
     for (let i = 0; i < cardNumber.length; i++) {
@@ -309,7 +319,7 @@ export function CardForm() {
                             <input
                                 type="text"
                                 className={`mt-1 block pr-12 w-full rounded-sm rounded-t-lg shadow-sm card-form-input`}
-                                value={addSpacesToCardNumber(cardFormState.formData.creditCardNumber)}
+                                value={formatCardNumber(cardFormState.formData.creditCardNumber)}
                                 placeholder="4111 1111 1111 1111"
                                 required={true}
                                 onBlur={validateForm}
@@ -333,7 +343,7 @@ export function CardForm() {
                                 type="text"
                                 className={`w-full h-10 px-3 text-base rounded-sm rounded-br-lg placeholder-gray-600 card-form-input`}
                                 id="creditCardExpiry"
-                                value={cardFormState.formData.creditCardExpiry}
+                                value={formatExpiryDate(cardFormState.formData.creditCardExpiry)}
                                 required={true}
                                 onBlur={validateForm}
                                 {...useExpiryInput(setCardFormState)}
