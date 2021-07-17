@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react"
+import { FormEvent, useState } from "react"
 import { creditCardType } from "card-validator"
 import { cardNumber as cardNumberValidator, CardNumberVerification } from "card-validator/dist/card-number"
 import Joi, { CustomHelpers } from "joi"
@@ -265,7 +265,7 @@ function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
     return mappings[error.type][error.context!.key!] + "."
 }
 
-export function CardForm() {
+function CardForm() {
     const [cardFormState, setCardFormState] = useState(new CardFormState())
 
     // Validate all form fields using the schema above
@@ -310,7 +310,7 @@ export function CardForm() {
 
     return (
         <div className="w-96 m-auto">
-            <form className="w-full space-y-2 text-gray-700">
+            <form className="space-y-2 text-gray-700">
                 <div>
                     <div>
                         <label>Credit card</label>
@@ -386,3 +386,5 @@ export function CardForm() {
         </div>
     )
 }
+
+export default CardForm

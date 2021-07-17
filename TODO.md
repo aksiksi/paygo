@@ -2,7 +2,8 @@
 
 - [x] Evaluate gRPC vs. JSON
 - [x] Finalize initial architecture
-- [ ] Build a simple SPA for the payment form using React + Tailwind
+- [x] Build a simple SPA for the credit card form using React + Tailwind
+- [ ] Build a simple checkout page using HTML + the CC form component
 - [ ] Tools
     - [ ] Redis: caching and task queues
         - [ ] SQS: task queues
