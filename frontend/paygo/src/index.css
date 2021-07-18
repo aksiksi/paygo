@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+.checkout-container {
+    @apply flex flex-col justify-start lg:justify-center min-w-min lg:flex-row h-screen items-center
+}
+
+.checkout-info {
+    @apply flex flex-row justify-center lg:justify-end lg:h-full w-full lg:w-1/2 py-4 px-4 lg:pr-16 bg-red-300
+}
+
+.checkout-form {
+    @apply flex flex-row justify-center lg:justify-start lg:h-full w-full lg:w-1/2 py-4 px-4 lg:pl-16 bg-green-300
+}
+
 .card-form-input {
     @apply placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500
 }

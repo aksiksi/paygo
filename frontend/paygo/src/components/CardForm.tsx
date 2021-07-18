@@ -77,7 +77,7 @@ function useExpiryInput(setCardFormState: any): any {
                 ...state,
                 formData: {
                     ...state.formData,
-                    creditCardExpiry: elem.value,
+                    creditCardExpiry: elem.value.replaceAll(" ", ""),
                 }
             }
         })
@@ -214,8 +214,21 @@ function useCardInput(setCardFormState: any) {
         })
     }
 
+    // Simple function that copies stripped card number to clipboard
+    async function onCopy(event: React.ClipboardEvent) {
+        const elem = event.target as HTMLInputElement
+        const cardNumber = elem.value.replaceAll(" ", "")
+        if (elem.selectionStart !== null && elem.selectionEnd !== null) {
+            await navigator.clipboard.writeText(
+                cardNumber.substr(elem.selectionStart, elem.selectionEnd)
+            )
+        }
+    }
+
     return {
         onChange,
+        onCopy,
+
         // TODO(aksiksi): This might need to be upto 23 - 19 + 3
         maxLength: 19, // 16 digits + 3 spaces
     }
@@ -236,6 +249,13 @@ const cardFormSchema = Joi.object({
     creditCardLastName: Joi.string().required(),
 })
 
+/**
+ * Converts a ValidationError from Joi into a user-consumable error message
+ * to display on the form.
+ *
+ * @param error ValidationError
+ * @returns User-consumable error message
+ */
 function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
     const mappings: any = {
         "string.pattern.base": {
@@ -309,7 +329,7 @@ function CardForm() {
     }
 
     return (
-        <div className="w-96 m-auto">
+        <div className="w-72 sm:w-96">
             <form className="space-y-2 text-gray-700">
                 <div>
                     <div>
