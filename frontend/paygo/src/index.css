@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .checkout-container {
-    @apply flex flex-col justify-start lg:justify-center min-w-min lg:flex-row h-screen items-center
+    @apply flex flex-col lg:flex-row justify-start lg:justify-center min-w-min h-screen items-center
 }
 
 .checkout-info {
