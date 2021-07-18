@@ -7,11 +7,11 @@
 }
 
 .checkout-info {
-    @apply flex flex-row justify-center lg:justify-end lg:h-full w-full lg:w-1/2 py-4 px-4 lg:pr-16 bg-red-300
+    @apply flex flex-row justify-center lg:justify-end lg:h-full w-full lg:w-1/2 py-4 px-4 lg:pr-16
 }
 
 .checkout-form {
-    @apply flex flex-row justify-center lg:justify-start lg:h-full w-full lg:w-1/2 py-4 px-4 lg:pl-16 bg-green-300
+    @apply flex flex-row justify-center lg:justify-start lg:h-full w-full lg:w-1/2 py-4 px-4 lg:pl-16 lg:shadow-xl
 }
 
 .card-form-input {
