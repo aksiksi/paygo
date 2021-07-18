@@ -3,17 +3,24 @@
 @tailwind utilities;
 
 .checkout-container {
-    @apply flex flex-col lg:flex-row justify-start lg:justify-center min-w-min h-screen items-center
+    @apply flex flex-col lg:flex-row justify-center relative max-w-max m-4
+}
+
+/* Trick to get a 50% split box shadow as a background */
+.checkout-container::before {
+    content: '';
+    z-index: -1;
+    @apply fixed top-0 right-0 lg:w-1/2 lg:h-screen lg:shadow-xl
 }
 
 .checkout-info {
-    @apply flex flex-row justify-center lg:justify-end lg:h-full w-full lg:w-1/2 py-4 px-4 lg:pr-16
+    @apply flex flex-row justify-center lg:justify-end h-full pt-2 pb-10 lg:pr-16 lg:pt-12
 }
 
 .checkout-form {
-    @apply flex flex-row justify-center lg:justify-start lg:h-full w-full lg:w-1/2 py-4 px-4 lg:pl-16 lg:shadow-xl
+    @apply flex flex-row justify-center lg:justify-start h-full pt-2 pb-10 lg:pl-16 lg:pt-12
 }
 
 .card-form-input {
-    @apply placeholder-gray-600 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500
+    @apply placeholder-gray-600 placeholder-opacity-30 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500
 }

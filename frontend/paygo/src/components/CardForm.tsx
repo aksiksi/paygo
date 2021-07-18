@@ -165,7 +165,7 @@ function formatCardNumber(cardNumber: string): string {
     return newCardNumber
 }
 
-type CardFormDataFields = "creditCardNumber" | "creditCardCvv" | "creditCardExpiry" | "creditCardFirstName" | "creditCardLastName"
+type CardFormDataFields = "creditCardNumber" | "creditCardCvv" | "creditCardExpiry" | "creditCardFirstName" | "creditCardLastName" | "creditCardEmail"
 
 class CardFormData {
     creditCardNumber: string = ""
@@ -173,6 +173,7 @@ class CardFormData {
     creditCardExpiry: string = ""
     creditCardFirstName: string = ""
     creditCardLastName: string = ""
+    creditCardEmail: string = ""
 }
 
 class CardFormState {
@@ -247,6 +248,7 @@ const cardFormSchema = Joi.object({
     creditCardExpiry: Joi.string().pattern(/[0-9]{2}\/[0-9]{2}/).required(),
     creditCardFirstName: Joi.string().required(),
     creditCardLastName: Joi.string().required(),
+    creditCardEmail: Joi.string().required(),
 })
 
 /**
@@ -272,6 +274,7 @@ function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
             "creditCardExpiry": "Expiry date is required",
             "creditCardFirstName": "First name is required",
             "creditCardLastName": "Last name is required",
+            "creditCardEmail": "Email is required",
         },
         "string.empty": {
             "creditCardNumber": "Credit card number is required",
@@ -279,6 +282,7 @@ function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
             "creditCardExpiry": "Expiry date is required",
             "creditCardFirstName": "First name is required",
             "creditCardLastName": "Last name is required",
+            "creditCardEmail": "Email is required",
         }
     }
 
@@ -329,81 +333,91 @@ function CardForm() {
     }
 
     return (
-        <div className="w-72 sm:w-96">
-            <form className="space-y-2 text-gray-700">
+        <form className="space-y-2 text-gray-700">
+            <div>
                 <div>
-                    <div>
-                        <label>Credit card</label>
-                        <span className="block relative">
-                            <CardLogo cardType={cardFormState.cardType} />
-                            <input
-                                type="text"
-                                className={`mt-1 block pr-12 w-full rounded-sm rounded-t-lg shadow-sm card-form-input`}
-                                value={formatCardNumber(cardFormState.formData.creditCardNumber)}
-                                placeholder="4111 1111 1111 1111"
-                                required={true}
-                                onBlur={validateForm}
-                                {...useCardInput(setCardFormState)}
-                            />
-                        </span>
-                    </div>
-                    <div className="flex flex-wrap -mx-1">
-                        <div className="w-1/2 pl-1">
-                            <input
-                                type="text"
-                                className={`w-full h-10 px-3 text-base rounded-sm rounded-bl-lg placeholder-gray-600 card-form-input`}
-                                value={cardFormState.formData.creditCardCvv}
-                                required={true}
-                                onBlur={validateForm}
-                                {...useCvvInput(cardFormState.cardType, setCardFormState)}
-                            />
-                        </div>
-                        <div className="w-1/2 pr-1">
-                            <input
-                                type="text"
-                                className={`w-full h-10 px-3 text-base rounded-sm rounded-br-lg placeholder-gray-600 card-form-input`}
-                                id="creditCardExpiry"
-                                value={formatExpiryDate(cardFormState.formData.creditCardExpiry)}
-                                required={true}
-                                onBlur={validateForm}
-                                {...useExpiryInput(setCardFormState)}
-                                />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap -mx-1 space-y-3 md:space-y-0">
-                    <div className="w-full px-1 md:w-1/2">
-                        <label className="block mb-1" htmlFor="creditCardFirstName">First name</label>
+                    <label>Credit card</label>
+                    <span className="block relative">
+                        <CardLogo cardType={cardFormState.cardType} />
                         <input
                             type="text"
-                            className="w-full h-10 px-3 text-base rounded-lg card-form-input"
-                            id="creditCardFirstName"
+                            className="mt-1 block pr-12 w-full rounded-sm rounded-t-lg shadow-sm card-form-input"
+                            value={formatCardNumber(cardFormState.formData.creditCardNumber)}
+                            placeholder="4111 1111 1111 1111"
                             required={true}
-                            onChange={ (event: FormEvent) => setFormValue(event, "creditCardFirstName") }
                             onBlur={validateForm}
+                            {...useCardInput(setCardFormState)}
                         />
-                    </div>
-                    <div className="w-full px-1 md:w-1/2">
-                        <label className="block mb-1" htmlFor="creditCardLastName">Last name</label>
+                    </span>
+                </div>
+                <div className="flex flex-wrap -mx-1">
+                    <div className="w-1/2 pl-1">
                         <input
                             type="text"
-                            className="w-full h-10 px-3 text-base rounded-lg card-form-input"
-                            id="creditCardLastName"
+                            className={`w-full h-10 px-3 text-base rounded-sm rounded-bl-lg card-form-input`}
+                            value={cardFormState.formData.creditCardCvv}
                             required={true}
-                            onChange={ (event: FormEvent) => setFormValue(event, "creditCardLastName") }
                             onBlur={validateForm}
+                            {...useCvvInput(cardFormState.cardType, setCardFormState)}
                         />
                     </div>
+                    <div className="w-1/2 pr-1">
+                        <input
+                            type="text"
+                            className={`w-full h-10 px-3 text-base rounded-sm rounded-br-lg card-form-input`}
+                            id="creditCardExpiry"
+                            value={formatExpiryDate(cardFormState.formData.creditCardExpiry)}
+                            required={true}
+                            onBlur={validateForm}
+                            {...useExpiryInput(setCardFormState)}
+                            />
+                    </div>
                 </div>
+            </div>
 
-                { cardFormState.formErrors && <span className="text-sm text-red-500">{cardFormState.formErrors[0]}</span> }
-
-                <div>
-                    <button className="mt-3 w-full py-2 px-4 rounded-md justify-center bg-yellow-500 text-white" type="submit" onClick={onSubmit}>Submit</button>
+            <div className="flex flex-wrap space-y-3 md:space-y-0">
+                <div className="w-full md:w-1/2">
+                    <label className="block mb-1" htmlFor="creditCardFirstName">First name</label>
+                    <input
+                        type="text"
+                        className="w-full h-10 px-3 text-base rounded-lg card-form-input"
+                        id="creditCardFirstName"
+                        required={true}
+                        onChange={ (event: FormEvent) => setFormValue(event, "creditCardFirstName") }
+                        onBlur={validateForm}
+                    />
                 </div>
-            </form>
-        </div>
+                <div className="w-full md:w-1/2">
+                    <label className="block mb-1" htmlFor="creditCardLastName">Last name</label>
+                    <input
+                        type="text"
+                        className="w-full h-10 px-3 text-base rounded-lg card-form-input"
+                        id="creditCardLastName"
+                        required={true}
+                        onChange={ (event: FormEvent) => setFormValue(event, "creditCardLastName") }
+                        onBlur={validateForm}
+                    />
+                </div>
+            </div>
+
+            <div className="w-full">
+                <label className="block mb-1" htmlFor="creditCardEmail">Email</label>
+                <input
+                    type="text"
+                    className="w-full h-10 px-3 text-base rounded-lg card-form-input"
+                    id="creditCardEmail"
+                    required={true}
+                    onChange={ (event: FormEvent) => setFormValue(event, "creditCardEmail") }
+                    onBlur={validateForm}
+                />
+            </div>
+
+            { cardFormState.formErrors && <span className="text-sm text-red-500">{cardFormState.formErrors[0]}</span> }
+
+            <div>
+                <button className="mt-3 w-full py-2 px-4 rounded-md justify-center bg-yellow-500 text-white" type="submit" onClick={onSubmit}>Submit</button>
+            </div>
+        </form>
     )
 }
 
