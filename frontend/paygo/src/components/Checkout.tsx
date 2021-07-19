@@ -40,7 +40,7 @@ function CheckoutInfoHeader(props: {storeName: string, storeLogo?: string}) {
 
 function CheckoutInfoContent(props: {storeName: string, productPrice: string, productName: string, productImageUrl?: string}) {
   return (
-    <div className="flex flex-col space-y-8 justify-center lg:justify-start">
+    <div className="flex flex-col space-y-4 justify-center lg:justify-start">
       <div>
         <h1 className="text-gray-900 text-lg text-opacity-75 text-center lg:text-left">{props.productName}</h1>
         <p className="text-3xl font-bold text-center lg:text-left">{props.productPrice}</p>

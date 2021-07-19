@@ -403,7 +403,7 @@ function CardForm() {
             </div>
 
             <div className="flex flex-wrap space-y-3 md:space-y-0">
-                <div className="w-full md:w-1/2 pr-1">
+                <div className="w-full md:w-1/2 lg:pr-1">
                     <label className="block mb-1" htmlFor="creditCardFirstName">First name</label>
                     <input
                         type="text"
@@ -414,7 +414,7 @@ function CardForm() {
                         onBlur={validateForm}
                     />
                 </div>
-                <div className="w-full md:w-1/2 pl-1">
+                <div className="w-full md:w-1/2 lg:pl-1">
                     <label className="block mb-1" htmlFor="creditCardLastName">Last name</label>
                     <input
                         type="text"

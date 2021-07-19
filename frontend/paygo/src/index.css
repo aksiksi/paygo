@@ -14,7 +14,7 @@
 }
 
 .checkout-info {
-  @apply flex flex-row justify-center lg:justify-end h-full pt-2 pb-10 lg:pr-16 lg:pt-12
+  @apply flex flex-row justify-center lg:justify-end h-full pt-2 pb-6 lg:pb-10 lg:pr-16 lg:pt-12
 }
 
 .checkout-form {
