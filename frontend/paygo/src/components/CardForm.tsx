@@ -181,6 +181,7 @@ class CardFormData {
 class CardFormState {
     // Form state
     cardType: CardType = CardType.Unknown
+    readyForSubmit: boolean = false
     submitState: ProgressButtonState = ProgressButtonState.None
 
     // Form information
@@ -315,6 +316,7 @@ function CardForm() {
             return {
                 ...state,
                 formErrors,
+                readyForSubmit: error ? false : true,
             }
         })
 
@@ -445,6 +447,7 @@ function CardForm() {
                 state={cardFormState.submitState}
                 baseStyle="text-xl mt-3 w-full py-2 px-4 rounded-md"
                 onClick={onSubmit}
+                disabled={!cardFormState.readyForSubmit}
             />
         </form>
     )

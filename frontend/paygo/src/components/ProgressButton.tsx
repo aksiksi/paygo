@@ -9,15 +9,25 @@ export enum ProgressButtonState {
  * Simple submit button that changes its text and appearance based on the
  * passed in state.
  */
-export function ProgressButton(props: {state: ProgressButtonState, baseStyle: string, onClick: any}) {
+export function ProgressButton(props: {
+    state: ProgressButtonState,
+    baseStyle: string,
+    disabled: boolean,
+    onClick: any,
+}) {
     let extraStyle: string
     let buttonText: string
     let spinAnimation = false
-    let isButtonDisabled: boolean = false
+    let isButtonDisabled: boolean = props.disabled
 
     switch (props.state) {
         case ProgressButtonState.None:
-            extraStyle = "bg-yellow-500 text-white"
+            if (isButtonDisabled) {
+                extraStyle = "bg-gray-500 text-white"
+            } else {
+                extraStyle = "bg-yellow-500 text-white"
+            }
+
             buttonText = "Pay"
             break
         case ProgressButtonState.Waiting:
