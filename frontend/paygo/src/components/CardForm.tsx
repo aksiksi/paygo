@@ -9,6 +9,8 @@ import { ReactComponent as AmexLogo } from "../svgs/cards/amex.svg"
 import { ReactComponent as DiscoverLogo } from "../svgs/cards/discover.svg"
 import { ReactComponent as GenericCardLogo } from "../svgs/cards/generic.svg"
 
+import { ProgressButtonState, ProgressButton } from "./ProgressButton"
+
 import "../index.css"
 
 // Expose the card type strings
@@ -179,6 +181,7 @@ class CardFormData {
 class CardFormState {
     // Form state
     cardType: CardType = CardType.Unknown
+    submitState: ProgressButtonState = ProgressButtonState.None
 
     // Form information
     formData: CardFormData = new CardFormData()
@@ -248,7 +251,7 @@ const cardFormSchema = Joi.object({
     creditCardExpiry: Joi.string().pattern(/[0-9]{2}\/[0-9]{2}/).required(),
     creditCardFirstName: Joi.string().required(),
     creditCardLastName: Joi.string().required(),
-    creditCardEmail: Joi.string().required(),
+    creditCardEmail: Joi.string().email({ tlds: { allow: false } }).required(),
 })
 
 /**
@@ -259,6 +262,8 @@ const cardFormSchema = Joi.object({
  * @returns User-consumable error message
  */
 function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
+    console.log(error)
+
     const mappings: any = {
         "string.pattern.base": {
             "creditCardNumber": "Credit card number must consist of 16 digits",
@@ -283,7 +288,10 @@ function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
             "creditCardFirstName": "First name is required",
             "creditCardLastName": "Last name is required",
             "creditCardEmail": "Email is required",
-        }
+        },
+        "string.email": {
+            "creditCardEmail": "Email is invalid",
+        },
     }
 
     return mappings[error.type][error.context!.key!] + "."
@@ -313,9 +321,28 @@ function CardForm() {
         return error ? false : true
     }
 
-    function onSubmit(_: any) {
+    function onSubmit(event: any) {
+        event.preventDefault()
+
         if (validateForm()) {
             console.log(cardFormState.formData)
+
+            setCardFormState((state: CardFormState) => {
+                return {
+                    ...state,
+                    submitState: ProgressButtonState.Waiting,
+                }
+            })
+
+            // Dummy wait
+            setTimeout(() => {
+                setCardFormState((state: CardFormState) => {
+                    return {
+                        ...state,
+                        submitState: ProgressButtonState.Done,
+                    }
+                })
+            }, 2000)
         }
     }
 
@@ -376,22 +403,22 @@ function CardForm() {
             </div>
 
             <div className="flex flex-wrap space-y-3 md:space-y-0">
-                <div className="w-full md:w-1/2">
+                <div className="w-full md:w-1/2 pr-1">
                     <label className="block mb-1" htmlFor="creditCardFirstName">First name</label>
                     <input
                         type="text"
-                        className="w-full h-10 px-3 text-base rounded-lg card-form-input"
+                        className="w-full h-10 text-base rounded-lg card-form-input"
                         id="creditCardFirstName"
                         required={true}
                         onChange={ (event: FormEvent) => setFormValue(event, "creditCardFirstName") }
                         onBlur={validateForm}
                     />
                 </div>
-                <div className="w-full md:w-1/2">
+                <div className="w-full md:w-1/2 pl-1">
                     <label className="block mb-1" htmlFor="creditCardLastName">Last name</label>
                     <input
                         type="text"
-                        className="w-full h-10 px-3 text-base rounded-lg card-form-input"
+                        className="w-full h-10 text-base rounded-lg card-form-input"
                         id="creditCardLastName"
                         required={true}
                         onChange={ (event: FormEvent) => setFormValue(event, "creditCardLastName") }
@@ -414,9 +441,11 @@ function CardForm() {
 
             { cardFormState.formErrors && <span className="text-sm text-red-500">{cardFormState.formErrors[0]}</span> }
 
-            <div>
-                <button className="mt-3 w-full py-2 px-4 rounded-md justify-center bg-yellow-500 text-white" type="submit" onClick={onSubmit}>Submit</button>
-            </div>
+            <ProgressButton
+                state={cardFormState.submitState}
+                baseStyle="text-xl mt-3 w-full py-2 px-4 rounded-md"
+                onClick={onSubmit}
+            />
         </form>
     )
 }
