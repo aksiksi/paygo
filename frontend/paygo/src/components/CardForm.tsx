@@ -443,12 +443,13 @@ function CardForm() {
 
             { cardFormState.formErrors && <span className="text-sm text-red-500">{cardFormState.formErrors[0]}</span> }
 
-            <ProgressButton
-                state={cardFormState.submitState}
-                baseStyle="text-xl mt-3 w-full py-2 px-4 rounded-md"
-                onClick={onSubmit}
-                disabled={!cardFormState.readyForSubmit}
-            />
+            <div className="pt-3">
+                <ProgressButton
+                    state={cardFormState.submitState}
+                    onClick={onSubmit}
+                    disabled={!cardFormState.readyForSubmit}
+                />
+            </div>
         </form>
     )
 }

@@ -11,7 +11,6 @@ export enum ProgressButtonState {
  */
 export function ProgressButton(props: {
     state: ProgressButtonState,
-    baseStyle: string,
     disabled: boolean,
     onClick: any,
 }) {
@@ -46,7 +45,7 @@ export function ProgressButton(props: {
     return (
         <div>
             <button
-                className={`flex items-center justify-center ${props.baseStyle} ${extraStyle}`}
+                className={`w-full flex items-center justify-center py-2 px-4 rounded-md text-xl ${extraStyle}`}
                 type="submit"
                 onClick={props.onClick}
                 disabled={isButtonDisabled}
