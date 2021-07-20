@@ -169,7 +169,7 @@ function formatCardNumber(cardNumber: string): string {
 
 type CardFormDataFields = "creditCardNumber" | "creditCardCvv" | "creditCardExpiry" | "creditCardFirstName" | "creditCardLastName" | "creditCardEmail"
 
-class CardFormData {
+export class CardFormData {
     creditCardNumber: string = ""
     creditCardCvv: string = ""
     creditCardExpiry: string = ""
@@ -298,7 +298,9 @@ function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
     return mappings[error.type][error.context!.key!] + "."
 }
 
-function CardForm() {
+function CardForm(props: {
+    onCardReady: (data: CardFormData) => Promise<string | null>
+}) {
     const [cardFormState, setCardFormState] = useState(new CardFormState())
 
     // Validate all form fields using the schema above
@@ -323,12 +325,10 @@ function CardForm() {
         return error ? false : true
     }
 
-    function onSubmit(event: any) {
+    async function onSubmit(event: any) {
         event.preventDefault()
 
         if (validateForm()) {
-            console.log(cardFormState.formData)
-
             setCardFormState((state: CardFormState) => {
                 return {
                     ...state,
@@ -336,15 +336,29 @@ function CardForm() {
                 }
             })
 
-            // Dummy wait
-            setTimeout(() => {
-                setCardFormState((state: CardFormState) => {
-                    return {
-                        ...state,
-                        submitState: ProgressButtonState.Done,
-                    }
-                })
-            }, 2000)
+            // Wait until the parent component has done its processing
+            // (e.g., API request).
+            const errorMessage = await props.onCardReady(cardFormState.formData)
+
+            // If there were no errors, mark the form submit button as "success"
+            // Otherwise, record the returned error message to display on the form
+            setCardFormState((state: CardFormState) => {
+                let submitState
+                let errors: string[] = state.formErrors
+
+                if (errorMessage !== null) {
+                    submitState = ProgressButtonState.Failed
+                    errors.push(errorMessage + ".")
+                } else {
+                    submitState = ProgressButtonState.Done
+                }
+
+                return {
+                    ...state,
+                    formErrors: errors,
+                    submitState,
+                }
+            })
         }
     }
 

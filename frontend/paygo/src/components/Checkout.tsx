@@ -1,5 +1,5 @@
 import React from "react"
-import CardForm from "./CardForm"
+import CardForm, { CardFormData } from "./CardForm"
 
 function MerchantLogo(props: {storeName: string, storeLogo?: string}) {
   return (
@@ -72,6 +72,15 @@ class CheckoutProps {
 }
 
 class Checkout extends React.Component<CheckoutProps, any> {
+  async onCardReady(data: CardFormData): Promise<string | null> {
+    // TODO: Perform API request(s) here
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(null)
+      }, 2000)
+    });
+  }
+
   render() {
     return (
       <div className="flex flex-col h-screen items-center justify-start lg:justify-center">
@@ -85,7 +94,7 @@ class Checkout extends React.Component<CheckoutProps, any> {
 
           <div className="checkout-form">
             <div className="flex-initial lg:flex-col justify-center xs:w-96">
-              <CardForm />
+              <CardForm onCardReady={this.onCardReady} />
             </div>
           </div>
 

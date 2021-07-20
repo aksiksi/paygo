@@ -3,6 +3,7 @@ export enum ProgressButtonState {
     None,
     Waiting,
     Done,
+    Failed,
 }
 
 /**
@@ -36,9 +37,13 @@ export function ProgressButton(props: {
             isButtonDisabled = true
             break
         case ProgressButtonState.Done:
-            extraStyle = "bg-green-200 text-white"
+            extraStyle = "bg-green-400 text-white"
             buttonText = "Success!"
             isButtonDisabled = true
+            break
+        case ProgressButtonState.Failed:
+            extraStyle = "bg-red-400 text-white"
+            buttonText = "Retry"
             break
     }
 
