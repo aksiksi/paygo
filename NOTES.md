@@ -34,16 +34,120 @@ Here is the overall flow of operations:
 
 ### Checkout
 
+To start off with, the `checkout` service will be a "monolith" that encapsulates all other services. The plan is to then split these out as needed.
+
+#### Charge
+
+A Charge represents a general payment from a user. There are two ways to use a Charge:
+
+1. Standalone: the Charge requires a Payment and a Card to be processed
+2. Complete: the Charge includes a Card and a Payment internally, and will the charge will be completed atomically
+
+Type (1) is useful when you want to allow users to store their card(s) for future use OR when you want to present the user with a "review and confirm" page - having the Payment accepted is a good signal that the charge will go through. Note that the Payment the charge points to will be *consumed* in the process.
+
+Type (2) can be used in all other cases - e.g., when card info must not be saved.
+
+```go
+type Charge struct {
+  // Unique ID for this charge (output)
+  Id             string        `json:"id"`
+
+  // Payment to process - either the Id OR remaining fields must
+  // be set
+  Payment        Payment       `json:"payment"`
+
+  // PaymentMethod to charge - either the Id OR remaining fields must
+  // be set
+  PaymentMethod  PaymentMethod `json:"payment_method"`
+
+  // Subscription information (ignored if Active == false)
+  Subscription   struct {
+    Active bool                `json:"active"`
+    Interval time.Duration     `json:"interval"`
+  } `json:"subscription"`
+
+  Refunded       bool          `json:"refunded"`
+}
+```
+
+#### Payment
+
+A Payment represents an amount to be charged.
+
+Taken alone, a Payment does not reflect any financial action: it only represents a payment to be charged (Charge) to a card some time in the future. A Payment can be converted into a Charge using the Charge API. Note that the Payment will be *consumed* in the process.
+
+This is useful for custom checkout flows.
+
+```go
+type Payment struct {
+  // Unique ID for this payment
+  Id             string   `json:"id"`
+
+  // Amount, in minimum unit for the currency
+  Amount         int64    `json:"amount"`
+
+  // Currency (3 letter ISO code)
+  Currency       string   `json:"currency"`
+
+  // Optional description for this charge
+  Description    string   `json:"description"`
+}
+```
+
+#### PaymentMethod and Card
+
+```go
+type PaymentMethod struct {
+  Id      string    `json:"id"`
+
+  // Type of payment method: bank, card, or edinar
+  Type    string    `json:"type"`
+  Card    *Card     `json:"card, omitempty"`
+  Bank    *Bank     `json:"bank, omitempty"`
+  Edinar  *Edinar   `json:"edinar, omitempty"`
+
+  // Billing information
+  BillingInfo    struct {
+    Email        string   `json:"email"`
+    Name         string   `json:"name"`
+    Phone        string   `json:"phone"`
+    Address      Address  `json:"address"`
+  } `json:"billing_info"`
+}
+```
+
+```go
+type Card struct {
+  Id          string    `json:"id"`
+
+  // Cardholder name
+  Name        string
+
+  ExpiryMonth int16
+  ExpiryYear  int16
+
+  // One of: visa, mastercard, amex
+  Brand       string
+
+  // One of: credit, debit, prepaid, or unknown
+  Type        string
+
+  // Unique hash for this card
+  Fingerprint string
+
+  // Last 4 digits of the card number
+  Last4       string
+
+  // Billing address
+  Address     Address  `json:"address"`
+}
+```
+
 ### Refund
 
 TBD
 
 ### Auth
-
-
-### Card
-
-### Charge
 
 ### Transaction
 
