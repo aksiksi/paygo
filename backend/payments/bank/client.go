@@ -1,6 +1,6 @@
 package bank
 
-import "github.com/aksiksi/paygo/common/data"
+import "github.com/aksiksi/paygo/payments/common/data"
 
 type Client struct{}
 

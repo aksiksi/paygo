@@ -1,4 +1,4 @@
-module github.com/aksiksi/paygo
+module github.com/aksiksi/paygo/payments
 
 go 1.15
 

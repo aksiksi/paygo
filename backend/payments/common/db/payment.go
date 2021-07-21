@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/aksiksi/paygo/common/data"
+	"github.com/aksiksi/paygo/payments/common/data"
 	"github.com/pkg/errors"
 )
 

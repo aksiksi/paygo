@@ -36,7 +36,7 @@ Here is the overall flow of operations:
 
 To start off with, the `checkout` service will be a "monolith" that encapsulates all other services. The plan is to then split these out as needed.
 
-#### Charge
+### Charge
 
 A Charge represents a general payment from a user. There are two ways to use a Charge:
 
@@ -67,10 +67,20 @@ type Charge struct {
   } `json:"subscription"`
 
   Refunded       bool          `json:"refunded"`
+  Success        bool          `json:"success"`
+  CompletionTime int64         `json:"completion_time"`
+  ErrorMessage   string        `json:"error_message"`
 }
 ```
 
-#### Payment
+#### API
+
+* POST `/v1/checkout`: start a new Checkout
+  * Input: `Charge`
+  * Output: `Charge` -> ID, success, and error message will be populated
+* GET `/v1/checkout/{id}`: get info for a previous Checkout
+
+### Payment
 
 A Payment represents an amount to be charged.
 
@@ -89,12 +99,16 @@ type Payment struct {
   // Currency (3 letter ISO code)
   Currency       string   `json:"currency"`
 
+  Completed      bool     `json:"currency"`
+
+  ChargeId       string   `json:"charge_id"`
+
   // Optional description for this charge
   Description    string   `json:"description"`
 }
 ```
 
-#### PaymentMethod and Card
+### PaymentMethod and Card
 
 ```go
 type PaymentMethod struct {
