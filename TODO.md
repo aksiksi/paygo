@@ -8,6 +8,14 @@
     - [ ] `/v1/charge`
     - [ ] `/v1/card`
     - [ ] `/v1/payment`
+- [ ] Add input validation: https://github.com/go-playground/validator
+- [ ] Document endpoints with Swagger doc comments: https://github.com/swaggo/swag
+- [ ] Look into HTTP server testing
+- [ ] i18n
+  - [ ] Frontend/React: Format.js or [i18next](https://www.i18next.com/overview/getting-started)
+  - [ ] Backend: https://github.com/nicksnyder/go-i18n
+- [ ] Deploy: Ansible + Packer + Terraform
+- [ ] Metrics
 - [ ] Tools
     - [ ] Redis: caching and task queues
         - [ ] SQS: task queues
@@ -16,6 +24,3 @@
     - [ ] Logging: Logstash + Elasticsearch
         - [ ] Structured logs in Go: https://github.com/uber-go/zap
         - [ ] Logstash runs on each machine and exports logs to Elastic
-- [ ] Deploy: Ansible + Packer + Terraform
-- [ ] Look into HTTP server testing
-- [ ] Metrics
