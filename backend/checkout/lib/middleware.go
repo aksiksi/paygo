@@ -20,8 +20,8 @@ func NewLoggingMiddleware(logger *log.Logger) *LoggingMiddleware {
 
 func (m *LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
-		id, exists := mux.Vars(req)["id"]
-		if !exists {
+		id := mux.Vars(req)["id"]
+		if id == "" {
 			id = "N/A"
 		}
 

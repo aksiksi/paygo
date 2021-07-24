@@ -1,6 +1,6 @@
 module github.com/aksiksi/paygo/checkout
 
-go 1.15
+go 1.16
 
 require (
 	github.com/Rhymond/go-money v1.0.3

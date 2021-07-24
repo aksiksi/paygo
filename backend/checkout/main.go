@@ -12,18 +12,20 @@ import (
 	"time"
 )
 
-var port = flag.Int("port", 9000, "port to listen on")
-var addr = flag.String("addr", "", "address to listen on")
-
 func main() {
+	var port int
+	var addr string
+
+	flag.IntVar(&port, "port", 9000, "port to listen on")
+	flag.StringVar(&addr, "addr", "", "address to listen on")
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "paygo-checkout ", log.LstdFlags)
 	router := NewRouter(logger)
 
-	addr := fmt.Sprintf("%s:%d", *addr, *port)
+	host := fmt.Sprintf("%s:%d", addr, port)
 	server := http.Server{
-		Addr:         addr,
+		Addr:         host,
 		Handler:      router,
 		ErrorLog:     logger,
 		ReadTimeout:  5 * time.Second,
@@ -32,7 +34,7 @@ func main() {
 	}
 
 	go func() {
-		logger.Printf("Starting server on: \"%s\"\n", addr)
+		logger.Printf("Starting server on: \"%s\"\n", host)
 
 		err := server.ListenAndServe()
 		if err != nil {
@@ -41,7 +43,7 @@ func main() {
 		}
 	}()
 
-	// Trap sigterm or interupt and gracefully shutdown the server
+	// Trap sigterm or interrupt and gracefully shutdown the server
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT)
 	signal.Notify(c, syscall.SIGTERM)
