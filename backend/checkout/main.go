@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -23,29 +24,34 @@ func main() {
 
 	logger := log.New(os.Stdout, "paygo-checkout ", log.LstdFlags)
 
+	router := mux.NewRouter()
+
+	// API router
+	apiRouter := router.PathPrefix("/api/v1").Subrouter()
 	ph := checkout.NewPaymentHandler(logger)
 	ch := checkout.NewChargeHandler(logger)
 
-	mux := mux.NewRouter()
+	apiGet := apiRouter.Methods(http.MethodGet).Subrouter()
+	apiGet.HandleFunc("/payment/{id}", ph.GetPayment)
+	apiGet.HandleFunc("/charge/{id}", ch.GetCharge)
 
-	getRouter := mux.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/v1/payment/{id}", ph.GetPayment)
-	getRouter.HandleFunc("/v1/charge/{id}", ch.GetCharge)
+	apiPost := apiRouter.Methods(http.MethodPost).Subrouter()
+	apiPost.HandleFunc("/payment", ph.AddPayment)
+	apiPost.HandleFunc("/charge", ch.AddCharge)
 
-	postRouter := mux.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/v1/payment", ph.AddPayment)
-	postRouter.HandleFunc("/v1/charge", ch.AddCharge)
-
-	deleteRouter := mux.Methods(http.MethodDelete).Subrouter()
-	deleteRouter.HandleFunc("/v1/payment", ph.DeletePayment)
-	deleteRouter.HandleFunc("/v1/charge", ch.DeleteCharge)
+	apiDelete := apiRouter.Methods(http.MethodDelete).Subrouter()
+	apiDelete.HandleFunc("/payment", ph.DeletePayment)
+	apiDelete.HandleFunc("/charge", ch.DeleteCharge)
 
 	loggingMiddleware := checkout.NewLoggingMiddleware(logger)
-	mux.Use(loggingMiddleware.Middleware)
+	authMiddleware := checkout.NewAuthMiddleware(logger)
+
+	apiRouter.Use(loggingMiddleware.Middleware)
+	apiRouter.Use(authMiddleware.Middleware)
 
 	server := http.Server{
 		Addr:         ":" + port,
-		Handler:      mux,
+		Handler:      router,
 		ErrorLog:     logger,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -64,8 +70,8 @@ func main() {
 
 	// Trap sigterm or interupt and gracefully shutdown the server
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, os.Kill)
+	signal.Notify(c, syscall.SIGINT)
+	signal.Notify(c, syscall.SIGTERM)
 
 	// Block until a signal is received.
 	<-c
