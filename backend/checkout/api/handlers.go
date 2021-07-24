@@ -16,10 +16,9 @@ func NewChargeHandler(logger *log.Logger) *ChargeHandler {
 }
 
 func (h *ChargeHandler) AddCharge(resp http.ResponseWriter, req *http.Request) {
-	charge := &Charge{}
-
-	err := charge.FromJson(req.Body)
+	charge, err := NewChargeFromJson(req.Body)
 	if err != nil {
+		h.logger.Println(err)
 		http.Error(resp, "Invalid charge provided", http.StatusBadRequest)
 	}
 
@@ -45,11 +44,10 @@ func NewPaymentHandler(logger *log.Logger) *PaymentHandler {
 }
 
 func (h *PaymentHandler) AddPayment(resp http.ResponseWriter, req *http.Request) {
-	payment := &Payment{}
-
-	err := payment.FromJson(req.Body)
+	payment, err := NewPaymentFromJson(req.Body)
 	if err != nil {
-		http.Error(resp, "Invalid charge provided", http.StatusBadRequest)
+		h.logger.Println(err)
+		http.Error(resp, "Invalid payment provided", http.StatusBadRequest)
 	}
 
 	payment.Completed = false

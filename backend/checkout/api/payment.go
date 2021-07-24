@@ -40,28 +40,29 @@ func (p *Payment) Validate() error {
 	return Validator.Struct(p)
 }
 
+func (p *Payment) ToJson(w io.Writer) error {
+	enc := json.NewEncoder(w)
+	return enc.Encode(p)
+}
+
 // TODO(aksiksi): Maybe this is a bad idea. The reason is that we
 // need to be able to differentiate between a struct built by an
 // external request (untrusted) vs. a struct provided by the DB
 // or another internal service (trusted).
-func (c *Payment) FromJson(r io.Reader) error {
+func NewPaymentFromJson(r io.Reader) (*Payment, error) {
 	decoder := json.NewDecoder(r)
+	payment := Payment{}
 
-	err := decoder.Decode(c)
+	err := decoder.Decode(&payment)
 	if err != nil {
-		return errors.Errorf("Invalid payment JSON: %w", err)
+		return nil, errors.Errorf("Invalid payment JSON: %w", err)
 	}
 
-	err = c.Validate()
+	err = payment.Validate()
 	if err != nil {
 		// TODO: Return a specific error type
-		return errors.Errorf("Invalid payment: %w", err)
+		return nil, errors.Errorf("Invalid payment: %w", err)
 	}
 
-	return nil
-}
-
-func (p *Payment) ToJson(w io.Writer) error {
-	enc := json.NewEncoder(w)
-	return enc.Encode(p)
+	return &payment, nil
 }

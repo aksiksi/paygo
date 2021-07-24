@@ -37,24 +37,25 @@ func (c *Charge) Validate() error {
 	return Validator.Struct(c)
 }
 
-func (c *Charge) FromJson(r io.Reader) error {
-	decoder := json.NewDecoder(r)
-
-	err := decoder.Decode(c)
-	if err != nil {
-		return errors.Errorf("Invalid charge JSON: %w", err)
-	}
-
-	err = c.Validate()
-	if err != nil {
-		// TODO: Return a specific error type
-		return errors.Errorf("Invalid charge: %w", err)
-	}
-
-	return nil
-}
-
 func (c *Charge) ToJson(w io.Writer) error {
 	enc := json.NewEncoder(w)
 	return enc.Encode(c)
+}
+
+func NewChargeFromJson(r io.Reader) (*Charge, error) {
+	decoder := json.NewDecoder(r)
+	charge := Charge{}
+
+	err := decoder.Decode(&charge)
+	if err != nil {
+		return nil, errors.Errorf("Invalid charge JSON: %w", err)
+	}
+
+	err = charge.Validate()
+	if err != nil {
+		// TODO: Return a specific error type
+		return nil, errors.Errorf("Invalid charge: %w", err)
+	}
+
+	return &charge, nil
 }
