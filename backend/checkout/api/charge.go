@@ -1,4 +1,4 @@
-package checkout
+package api
 
 import (
 	"encoding/json"

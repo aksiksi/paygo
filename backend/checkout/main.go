@@ -11,10 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gorilla/mux"
-
-	checkout "github.com/aksiksi/paygo/checkout/lib"
-
 	_ "github.com/Rhymond/go-money"
 )
 
@@ -25,33 +21,7 @@ func main() {
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "paygo-checkout ", log.LstdFlags)
-	router := mux.NewRouter()
-
-	// API router
-	apiRouter := router.PathPrefix("/api/v1").Subrouter()
-	ph := checkout.NewPaymentHandler(logger)
-	ch := checkout.NewChargeHandler(logger)
-
-	apiGet := apiRouter.Methods(http.MethodGet).Subrouter()
-	apiGet.HandleFunc("/payment/{id}", ph.GetPayment)
-	apiGet.HandleFunc("/charge/{id}", ch.GetCharge)
-
-	apiPost := apiRouter.Methods(http.MethodPost).Subrouter()
-	apiPost.HandleFunc("/payment", ph.AddPayment)
-	apiPost.HandleFunc("/charge", ch.AddCharge)
-
-	apiDelete := apiRouter.Methods(http.MethodDelete).Subrouter()
-	apiDelete.HandleFunc("/payment", ph.DeletePayment)
-	apiDelete.HandleFunc("/charge", ch.DeleteCharge)
-
-	loggingMiddleware := checkout.NewLoggingMiddleware(logger)
-	authMiddleware := checkout.NewAuthMiddleware(logger)
-
-	apiRouter.Use(loggingMiddleware.Middleware)
-	apiRouter.Use(authMiddleware.Middleware)
-
-	// Checkout router
-	// checkoutRouter := router.PathPrefix("/checkout").Subrouter()
+	router := NewRouter(logger)
 
 	addr := fmt.Sprintf("%s:%d", *addr, *port)
 	server := http.Server{
