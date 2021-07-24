@@ -1,7 +1,5 @@
 package api
 
-import "github.com/go-playground/validator/v10"
-
 type PaymentMethod struct {
 	Id string `json:"id"`
 
@@ -44,8 +42,6 @@ type Card struct {
 	// Billing address
 	// Address Address `json:"address"`
 }
-
-var Validator *validator.Validate = validator.New()
 
 func (card *Card) Validate() error {
 	err := Validator.Struct(card)

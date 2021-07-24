@@ -10,8 +10,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	_ "github.com/Rhymond/go-money"
 )
 
 var port = flag.Int("port", 9000, "port to listen on")

@@ -3,10 +3,9 @@ package api
 import (
 	"encoding/json"
 	"io"
-	"log"
-	"net/http"
 	"time"
 
+	_ "github.com/Rhymond/go-money"
 	"github.com/pkg/errors"
 )
 
@@ -55,31 +54,7 @@ func (c *Charge) FromJson(r io.Reader) error {
 	return nil
 }
 
-type ChargeHandler struct {
-	logger *log.Logger
-}
-
-func NewChargeHandler(logger *log.Logger) *ChargeHandler {
-	return &ChargeHandler{
-		logger,
-	}
-}
-
-func (h *ChargeHandler) AddCharge(resp http.ResponseWriter, req *http.Request) {
-	charge := &Charge{}
-
-	err := charge.FromJson(req.Body)
-	if err != nil {
-		http.Error(resp, "Invalid charge provided", http.StatusBadRequest)
-	}
-
-	h.logger.Printf("Got: %+v", charge)
-}
-
-func (h *ChargeHandler) DeleteCharge(resp http.ResponseWriter, req *http.Request) {
-
-}
-
-func (h *ChargeHandler) GetCharge(resp http.ResponseWriter, req *http.Request) {
-
+func (c *Charge) ToJson(w io.Writer) error {
+	enc := json.NewEncoder(w)
+	return enc.Encode(c)
 }

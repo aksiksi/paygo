@@ -3,8 +3,6 @@ package api
 import (
 	"encoding/json"
 	"io"
-	"log"
-	"net/http"
 
 	"github.com/pkg/errors"
 )
@@ -63,33 +61,7 @@ func (c *Payment) FromJson(r io.Reader) error {
 	return nil
 }
 
-type PaymentHandler struct {
-	logger *log.Logger
-}
-
-func NewPaymentHandler(logger *log.Logger) *PaymentHandler {
-	return &PaymentHandler{
-		logger,
-	}
-}
-
-func (h *PaymentHandler) AddPayment(resp http.ResponseWriter, req *http.Request) {
-	payment := &Payment{}
-
-	err := payment.FromJson(req.Body)
-	if err != nil {
-		http.Error(resp, "Invalid charge provided", http.StatusBadRequest)
-	}
-
-	payment.Completed = false
-
-	h.logger.Printf("Got: %+v", payment)
-}
-
-func (h *PaymentHandler) DeletePayment(resp http.ResponseWriter, req *http.Request) {
-
-}
-
-func (h *PaymentHandler) GetPayment(resp http.ResponseWriter, req *http.Request) {
-
+func (p *Payment) ToJson(w io.Writer) error {
+	enc := json.NewEncoder(w)
+	return enc.Encode(p)
 }
