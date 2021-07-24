@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -16,14 +18,13 @@ import (
 	_ "github.com/Rhymond/go-money"
 )
 
+var port = flag.Int("port", 9000, "port to listen on")
+var addr = flag.String("addr", "", "address to listen on")
+
 func main() {
-	port, ok := os.LookupEnv("PAYGO_PORT")
-	if !ok {
-		port = "9000"
-	}
+	flag.Parse()
 
 	logger := log.New(os.Stdout, "paygo-checkout ", log.LstdFlags)
-
 	router := mux.NewRouter()
 
 	// API router
@@ -49,8 +50,12 @@ func main() {
 	apiRouter.Use(loggingMiddleware.Middleware)
 	apiRouter.Use(authMiddleware.Middleware)
 
+	// Checkout router
+	// checkoutRouter := router.PathPrefix("/checkout").Subrouter()
+
+	addr := fmt.Sprintf("%s:%d", *addr, *port)
 	server := http.Server{
-		Addr:         ":" + port,
+		Addr:         addr,
 		Handler:      router,
 		ErrorLog:     logger,
 		ReadTimeout:  5 * time.Second,
@@ -59,7 +64,7 @@ func main() {
 	}
 
 	go func() {
-		logger.Printf("Starting server on port %s\n", port)
+		logger.Printf("Starting server on: \"%s\"\n", addr)
 
 		err := server.ListenAndServe()
 		if err != nil {
