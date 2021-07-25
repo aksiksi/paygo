@@ -71,3 +71,10 @@ func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 		next.ServeHTTP(resp, req)
 	})
 }
+
+func CacheControlMiddleware(h http.Handler, value string) http.Handler {
+	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
+		resp.Header().Set("Cache-Control", value)
+		h.ServeHTTP(resp, req)
+	})
+}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 
+	"github.com/aksiksi/paygo/checkout/lib"
 	"github.com/pkg/errors"
 )
 
@@ -37,7 +38,7 @@ func FromCharge(charge *Charge) (*Payment, error) {
 }
 
 func (p *Payment) Validate() error {
-	return Validator.Struct(p)
+	return lib.Validator.Struct(p)
 }
 
 func (p *Payment) ToJson(w io.Writer) error {

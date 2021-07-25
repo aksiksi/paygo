@@ -1,18 +1,18 @@
 import "./App.css"
 import "./index.css"
 
-import Checkout from "./components/Checkout"
+import Checkout, { CheckoutProps } from "./components/Checkout"
 
 import StoreLogo from "./images/merchant-logo.png"
 import ProductImage from "./images/product-image.jpg"
 
+const checkoutParams: CheckoutProps = (window as any).__CHECKOUT_PARAMS
+
 function App() {
   return (
     <Checkout
-      storeName="Ultimate Shoe Store"
+      {...checkoutParams}
       storeLogoUrl={StoreLogo}
-      productName="The Shoe"
-      productPrice="$20.00"
       productImageUrl={ProductImage}
     />
   )

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/Rhymond/go-money"
+	"github.com/aksiksi/paygo/checkout/lib"
 	"github.com/pkg/errors"
 )
 
@@ -34,7 +35,7 @@ type Charge struct {
 }
 
 func (c *Charge) Validate() error {
-	return Validator.Struct(c)
+	return lib.Validator.Struct(c)
 }
 
 func (c *Charge) ToJson(w io.Writer) error {

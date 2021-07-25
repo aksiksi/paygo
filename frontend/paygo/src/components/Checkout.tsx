@@ -63,11 +63,14 @@ function CheckoutFooter() {
   )
 }
 
-class CheckoutProps {
+export class CheckoutProps {
+  clientId: string = "TBD"
   storeName: string = "Unknown"
-  storeLogoUrl?: string
   productName: string = "TBA"
   productPrice: string = "$xx.xx"
+  successUrl?: string
+  errorUrl?: string
+  storeLogoUrl?: string
   productImageUrl?: string
 }
 

@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-CHECKOUT_DIR="$(pwd)"
+# Path to the directory this script is located in
+CHECKOUT_DIR="$(dirname "$(realpath $0)")"
 
 # Build the checkout frontend
 cd ../../frontend/paygo/

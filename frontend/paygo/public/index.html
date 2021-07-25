@@ -26,8 +26,16 @@
   </head>
 
   <script>
-    // Payment ID is rendered by the backend
-    window.__PAYMENT_ID = "{{.}}"
+    try {
+      window.__CHECKOUT_PARAMS = JSON.parse("{{.}}");
+    } catch (e) {
+      window.__CHECKOUT_PARAMS = {
+        "clientId": "unknown",
+        "storeName": "Ultimate Shoe Store",
+        "productName": "The Shoe",
+        "productPrice": "$20.00",
+      };
+    }
   </script>
 
   <body>

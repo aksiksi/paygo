@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/aksiksi/paygo/checkout/lib"
 	"github.com/pkg/errors"
 )
 
@@ -44,7 +45,7 @@ type Address struct {
 }
 
 func (a *Address) Validate() error {
-	err := Validator.Struct(a)
+	err := lib.Validator.Struct(a)
 	if err != nil {
 		return err
 	}
@@ -91,7 +92,7 @@ type Card struct {
 func (card *Card) Validate() error {
 	var err error
 
-	err = Validator.Struct(card)
+	err = lib.Validator.Struct(card)
 	if err != nil {
 		return errors.Errorf("invalid card: %w", err)
 	}

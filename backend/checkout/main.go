@@ -10,6 +10,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/aksiksi/paygo/checkout/lib"
 )
 
 func main() {
@@ -19,6 +21,8 @@ func main() {
 	flag.IntVar(&port, "port", 9000, "port to listen on")
 	flag.StringVar(&addr, "addr", "", "address to listen on")
 	flag.Parse()
+
+	lib.Init()
 
 	logger := log.New(os.Stdout, "paygo-checkout ", log.LstdFlags)
 	router := NewRouter(logger)
