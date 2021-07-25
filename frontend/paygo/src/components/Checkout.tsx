@@ -68,8 +68,6 @@ export class CheckoutProps {
   storeName: string = "Unknown"
   productName: string = "TBA"
   productPrice: string = "$xx.xx"
-  successUrl?: string
-  errorUrl?: string
   storeLogoUrl?: string
   productImageUrl?: string
 }

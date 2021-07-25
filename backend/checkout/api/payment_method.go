@@ -12,19 +12,52 @@ import (
 type PaymentMethod struct {
 	Id string `json:"id"`
 
-	// Type of payment method: bank, card, or edinar
-	Type string `json:"type" validate:"required"`
-	Card *Card  `json:"card,omitempty"`
-	//   Bank    *Bank     `json:"bank, omitempty"`
-	//   Edinar  *Edinar   `json:"edinar, omitempty"`
+	// Type of payment method: card, bank, or edinar
+	Card   *Card `json:"card,omitempty" validate:"required_without_all=Id Bank Edinar"`
+	Bank   *Card `json:"bank,omitempty" validate:"required_without_all=Id Card Edinar"`
+	Edinar *Card `json:"edinar,omitempty" validate:"required_without_all=Id Card Bank"`
 
 	// Billing information
 	BillingInfo struct {
-		Email   string  `json:"email" validate:"required,email"`
-		Name    string  `json:"name" validate:"required"`
-		Phone   string  `json:"phone" validate:"required,e164"`
-		Address Address `json:"address"`
-	} `json:"billing_info"`
+		Email   string   `json:"email" validate:"required,email"`
+		Name    string   `json:"name" validate:"required"`
+		Phone   string   `json:"phone" validate:"omitempty,e164"`
+		Address *Address `json:"address" validate:"-"`
+	} `json:"billing_info" validate:"required_without=Id"`
+}
+
+func (p *PaymentMethod) Validate() error {
+	if err := lib.Validator.Struct(p); err != nil {
+		return err
+	}
+
+	if p.BillingInfo.Address != nil {
+		if err := p.BillingInfo.Address.Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (p *PaymentMethod) ToJson(w io.Writer) error {
+	enc := json.NewEncoder(w)
+	return enc.Encode(p)
+}
+
+func NewPaymentMethodFromJson(r io.Reader) (*PaymentMethod, error) {
+	decoder := json.NewDecoder(r)
+	p := PaymentMethod{}
+
+	if err := decoder.Decode(&p); err != nil {
+		return nil, errors.Errorf("Invalid PaymentMethod JSON: %w", err)
+	}
+
+	if err := p.Validate(); err != nil {
+		return nil, err
+	}
+
+	return &p, nil
 }
 
 type invalidAddress struct {
@@ -65,65 +98,28 @@ type EncryptedCard struct {
 type Card struct {
 	Id string `json:"id"`
 
+	Type string `json:"type" validate:"required,oneof=credit debit prepaid unknown"`
+
 	// Cardholder name
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 
-	ExpiryMonth int16 `json:"expiry_month"`
-	ExpiryYear  int16 `json:"expiry_year"`
+	ExpiryMonth int16 `json:"expiry_month" validate:"required,gte=1,lte=12"`
+	ExpiryYear  int16 `json:"expiry_year" validate:"required,gte=2021,lte=9999"`
 
-	// One of: visa, mastercard, amex
-	Brand string `json:"brand"`
-
-	// One of: credit, debit, prepaid, or unknown
-	Type string `json:"type"`
+	Brand string `json:"brand" validate:"required,oneof=visa mastercard amex"`
 
 	// Billing address
-	Address Address `json:"address" validate:"required"`
+	BillingAddress Address `json:"billing_address" validate:"required"`
 
 	// Unique hash for this card
 	Fingerprint string `json:"fingerprint"`
 
-	EncryptedCard *EncryptedCard `json:"encrypted_card"`
+	EncryptedCard *EncryptedCard `json:"encrypted_card,omitempty" validate:"required,structonly"`
 
 	// Last 4 digits of the card number
 	Last4 string `json:"last4"`
 }
 
-func (card *Card) Validate() error {
-	var err error
-
-	err = lib.Validator.Struct(card)
-	if err != nil {
-		return errors.Errorf("invalid card: %w", err)
-	}
-
-	err = card.Address.Validate()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *Card) ToJson(w io.Writer) error {
-	enc := json.NewEncoder(w)
-	return enc.Encode(c)
-}
-
-func NewCardFromJson(r io.Reader) (*Card, error) {
-	decoder := json.NewDecoder(r)
-	card := Card{}
-
-	err := decoder.Decode(&card)
-	if err != nil {
-		return nil, errors.Errorf("invalid card JSON: %w", err)
-	}
-
-	err = card.Validate()
-	if err != nil {
-		// TODO: Return a specific error type
-		return nil, errors.Errorf("invalid card: %w", err)
-	}
-
-	return &card, nil
+func (c *Card) Validate() error {
+	return lib.Validator.Struct(c)
 }

@@ -10,13 +10,13 @@ import (
 
 type Payment struct {
 	// Unique ID for this payment
-	Id string `json:"id"`
+	Id string `json:"id" validate:"required_without_all=Amount Currency"`
 
 	// Amount, in minimum unit for the currency
-	Amount int64 `json:"amount" validate:"required"`
+	Amount int64 `json:"amount" validate:"required_without=Id"`
 
 	// Currency (3 letter ISO code)
-	Currency string `json:"currency" validate:"required"`
+	Currency string `json:"currency" validate:"required_without=Id"`
 
 	Completed bool `json:"completed"`
 

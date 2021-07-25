@@ -2,11 +2,13 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 
 	_ "github.com/Rhymond/go-money"
 	"github.com/aksiksi/paygo/checkout/lib"
+	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 )
 
@@ -28,10 +30,10 @@ type Charge struct {
 		Interval time.Duration `json:"interval"`
 	} `json:"subscription"`
 
-	Refunded       bool   `json:"refunded"`
-	Success        bool   `json:"success"`
-	CompletionTime int64  `json:"completion_time"`
-	ErrorMessage   string `json:"error_message"`
+	Refunded       bool     `json:"refunded"`
+	Success        bool     `json:"success"`
+	CompletionTime int64    `json:"completion_time"`
+	Errors         []string `json:"errors" validate:"omitempty"`
 }
 
 func (c *Charge) Validate() error {
@@ -52,10 +54,23 @@ func NewChargeFromJson(r io.Reader) (*Charge, error) {
 		return nil, errors.Errorf("Invalid charge JSON: %w", err)
 	}
 
-	err = charge.Validate()
-	if err != nil {
-		// TODO: Return a specific error type
-		return nil, errors.Errorf("Invalid charge: %w", err)
+	if err := charge.Validate(); err != nil {
+		switch err := err.(type) {
+		case validator.ValidationErrors:
+			for _, e := range err {
+				var err error
+
+				if e.Tag() == "required" {
+					err = fmt.Errorf("%s must be specified", e.Namespace())
+				} else {
+					err = fmt.Errorf("%s is invalid (validator: %s)", e.Namespace(), e.Tag())
+				}
+
+				return nil, &userVisibleError{err}
+			}
+		default:
+			return nil, &internalError{err}
+		}
 	}
 
 	return &charge, nil

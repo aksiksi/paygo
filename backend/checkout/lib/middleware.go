@@ -2,6 +2,7 @@ package lib
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -60,7 +61,7 @@ func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 		}
 
 		if _, ok := m.apiKeys[apiKey]; !ok {
-			http.Error(resp, "Invalid API key", http.StatusUnauthorized)
+			http.Error(resp, fmt.Sprintf("X-Api-Key is invalid: %s", apiKey), http.StatusUnauthorized)
 			return
 		}
 
