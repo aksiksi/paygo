@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"log"
 	"net/http"
 )
 
@@ -31,8 +30,7 @@ func getErrorMessage(err error, safe string) string {
 	}
 }
 
-func setHttpError(err error, safe string, code int, resp http.ResponseWriter, logger *log.Logger) {
-	logger.Println(err)
+func setHttpError(err error, safe string, code int, resp http.ResponseWriter) {
 	msg := getErrorMessage(err, safe)
 	http.Error(resp, msg, code)
 }

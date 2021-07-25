@@ -263,8 +263,6 @@ const cardFormSchema = Joi.object({
  * @returns User-consumable error message
  */
 function validationErrorToMessage(error: Joi.ValidationErrorItem): string {
-    console.log(error)
-
     const mappings: any = {
         "string.pattern.base": {
             "creditCardNumber": "Credit card number must consist of 16 digits",

@@ -12,7 +12,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var indexTemplate = template.Must(template.ParseFS(publicFs, "public/index.html"))
+var templates = template.Must(template.ParseFS(publicFs, "public/*.html"))
 
 // Keep this in sync with `CheckoutProps` in frontend
 type CheckoutParams struct {
@@ -78,7 +78,7 @@ func (h *CheckoutHandler) IndexPage(resp http.ResponseWriter, req *http.Request)
 	jsonBytes, _ := json.Marshal(checkoutParams)
 	jsonString := string(jsonBytes)
 
-	err = indexTemplate.Execute(resp, jsonString)
+	err = templates.ExecuteTemplate(resp, "index.html", jsonString)
 	if err != nil {
 		resp.WriteHeader(http.StatusInternalServerError)
 		return
