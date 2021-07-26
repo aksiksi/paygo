@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +11,7 @@ import (
 	"time"
 
 	"github.com/aksiksi/paygo/checkout/lib"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -24,21 +24,22 @@ func main() {
 
 	lib.Init()
 
-	logger := log.New(os.Stdout, "paygo-checkout ", log.LstdFlags)
+	root, _ := zap.NewProduction()
+	logger := root.Sugar()
+
 	router := NewRouter(logger)
 
 	host := fmt.Sprintf("%s:%d", addr, port)
 	server := http.Server{
 		Addr:         host,
 		Handler:      router,
-		ErrorLog:     logger,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 	}
 
 	go func() {
-		logger.Printf("Starting server on: \"%s\"\n", host)
+		logger.Infof("Starting server at %s", host)
 
 		err := server.ListenAndServe()
 		if err != nil {

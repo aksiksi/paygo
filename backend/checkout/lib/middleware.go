@@ -3,17 +3,17 @@ package lib
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
 type LoggingMiddleware struct {
-	logger *log.Logger
+	logger *zap.SugaredLogger
 }
 
-func NewLoggingMiddleware(logger *log.Logger) *LoggingMiddleware {
+func NewLoggingMiddleware(logger *zap.SugaredLogger) *LoggingMiddleware {
 	return &LoggingMiddleware{
 		logger,
 	}
@@ -26,9 +26,12 @@ func (m *LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 			id = "N/A"
 		}
 
-		m.logger.Printf(
-			"path:%s,method:%s,size:%d,content_type:%s,request_id:%s",
-			req.RequestURI, req.Method, req.ContentLength, req.Header.Get("Content-Type"), id,
+		m.logger.Infow("got API request",
+			"path", req.RequestURI,
+			"method", req.Method,
+			"size", req.ContentLength,
+			"content_type", req.Header.Get("Content-Type"),
+			"request_id", id,
 		)
 
 		next.ServeHTTP(resp, req)
@@ -38,11 +41,11 @@ func (m *LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 type authContext struct{}
 
 type AuthMiddleware struct {
-	logger  *log.Logger
+	logger  *zap.SugaredLogger
 	apiKeys map[string]bool
 }
 
-func NewAuthMiddleware(logger *log.Logger) *AuthMiddleware {
+func NewAuthMiddleware(logger *zap.SugaredLogger) *AuthMiddleware {
 	apiKeys := make(map[string]bool)
 	apiKeys["test123"] = true
 

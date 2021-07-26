@@ -1,14 +1,14 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/aksiksi/paygo/checkout/lib"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
-func AttachApiRouter(path string, logger *log.Logger, router *mux.Router) {
+func AttachApiRouter(path string, logger *zap.SugaredLogger, router *mux.Router) {
 	ph := NewPaymentHandler(logger)
 	ch := NewChargeHandler(logger)
 

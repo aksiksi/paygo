@@ -1,14 +1,13 @@
 package main
 
 import (
-	"log"
-
 	"github.com/aksiksi/paygo/checkout/api"
 	"github.com/aksiksi/paygo/checkout/app"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
-func NewRouter(logger *log.Logger) *mux.Router {
+func NewRouter(logger *zap.SugaredLogger) *mux.Router {
 	router := mux.NewRouter()
 
 	api.AttachApiRouter("/api/v1", logger, router)

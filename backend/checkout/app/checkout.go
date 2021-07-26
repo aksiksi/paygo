@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/aksiksi/paygo/checkout/lib"
 	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
 )
 
 var templates = template.Must(template.ParseFS(publicFs, "public/*.html"))
@@ -66,10 +66,10 @@ func NewCheckoutParamsFromQuery(queryParams url.Values) (*CheckoutParams, error)
 }
 
 type CheckoutHandler struct {
-	logger *log.Logger
+	logger *zap.SugaredLogger
 }
 
-func NewCheckoutHandler(logger *log.Logger) *CheckoutHandler {
+func NewCheckoutHandler(logger *zap.SugaredLogger) *CheckoutHandler {
 	return &CheckoutHandler{
 		logger,
 	}

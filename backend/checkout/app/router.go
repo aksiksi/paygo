@@ -4,11 +4,11 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"log"
 	"net/http"
 
 	"github.com/aksiksi/paygo/checkout/lib"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
 //go:embed public
@@ -33,7 +33,7 @@ func AttachStaticRouter(prefix string, router *mux.Router) {
 	router.Path("/logo512.png").Handler(fs)
 }
 
-func AttachCheckoutRouter(path string, logger *log.Logger, router *mux.Router) *mux.Router {
+func AttachCheckoutRouter(path string, logger *zap.SugaredLogger, router *mux.Router) *mux.Router {
 	checkoutRouter := router.PathPrefix(path).Subrouter()
 	checkoutHandler := NewCheckoutHandler(logger)
 
