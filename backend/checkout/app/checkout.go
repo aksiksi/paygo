@@ -16,12 +16,15 @@ var templates = template.Must(template.ParseFS(publicFs, "public/*.html"))
 
 // Keep this in sync with `CheckoutProps` in frontend
 type CheckoutParams struct {
-	ClientId     string `json:"clientId" validate:"required"`
-	StoreName    string `json:"storeName" validate:"required"`
-	ProductName  string `json:"productName" validate:"required"`
-	ProductPrice string `json:"productPrice" validate:"required"` // TODO(aksiksi): Pass this to JS as an int + currency
-	SuccessUrl   string `json:"successUrl"`
-	ErrorUrl     string `json:"errorUrl"`
+	ClientId        string `json:"clientId" validate:"required"`
+	StoreName       string `json:"storeName" validate:"required"`
+	StoreUrl        string `json:"storeUrl" validate:"required"`
+	ProductName     string `json:"productName" validate:"required"`
+	ProductPrice    string `json:"productPrice" validate:"required"` // TODO(aksiksi): Pass this to JS as an int + currency
+	StoreLogoUrl    string `json:"storeLogoUrl"`
+	ProductImageUrl string `json:"productImageUrl"`
+	SuccessUrl      string `json:"successUrl"`
+	ErrorUrl        string `json:"errorUrl"`
 }
 
 func (c *CheckoutParams) Validate() error {
@@ -31,18 +34,24 @@ func (c *CheckoutParams) Validate() error {
 func NewCheckoutParamsFromQuery(queryParams url.Values) (*CheckoutParams, error) {
 	clientId := queryParams.Get("clientId")
 	storeName := queryParams.Get("storeName")
+	storeUrl := queryParams.Get("storeUrl")
 	productName := queryParams.Get("productName")
 	productPrice := queryParams.Get("productPrice")
+	storeLogoUrl := queryParams.Get("storeLogoUrl")
+	productImageUrl := queryParams.Get("productImageUrl")
 	successUrl := queryParams.Get("successUrl")
 	errorUrl := queryParams.Get("errorUrl")
 
 	checkoutParams := &CheckoutParams{
-		ClientId:     clientId,
-		StoreName:    storeName,
-		ProductName:  productName,
-		ProductPrice: productPrice,
-		SuccessUrl:   successUrl,
-		ErrorUrl:     errorUrl,
+		ClientId:        clientId,
+		StoreName:       storeName,
+		StoreUrl:        storeUrl,
+		ProductName:     productName,
+		ProductPrice:    productPrice,
+		StoreLogoUrl:    storeLogoUrl,
+		ProductImageUrl: productImageUrl,
+		SuccessUrl:      successUrl,
+		ErrorUrl:        errorUrl,
 	}
 
 	// Validate the values passed in using the query params
@@ -83,6 +92,4 @@ func (h *CheckoutHandler) IndexPage(resp http.ResponseWriter, req *http.Request)
 		resp.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	h.logger.Println("Rendered index.html")
 }

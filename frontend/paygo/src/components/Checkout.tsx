@@ -10,7 +10,7 @@ function MerchantLogo(props: {storeName: string, storeLogo?: string}) {
   )
 }
 
-function CheckoutInfoHeader(props: {storeName: string, storeLogo?: string}) {
+function CheckoutInfoHeader(props: {storeName: string, storeUrl: string, storeLogo?: string}) {
   const [isHover, setIsHover] = React.useState(false)
 
   // TODO: Can we implement hover in CSS?
@@ -19,7 +19,7 @@ function CheckoutInfoHeader(props: {storeName: string, storeLogo?: string}) {
   // breakpoint (see: https://stackoverflow.com/a/59982143/845275).
   return (
     <a
-      href="/"
+      href={props.storeUrl}
       className="w-48 mt-1 lg:-ml-8 flex items-center text-sm py-1 px-2"
       onMouseOver={ (_: any) => setIsHover(true) }
       onMouseOut={ (_: any) => setIsHover(false) }
@@ -63,17 +63,21 @@ function CheckoutFooter() {
   )
 }
 
-export class CheckoutProps {
-  clientId: string = "TBD"
-  storeName: string = "Unknown"
-  productName: string = "TBA"
-  productPrice: string = "$xx.xx"
+// Keep this in sync with `CheckoutParams` defined in backend
+export interface CheckoutProps {
+  clientId: string
+  storeName: string
+  storeUrl: string
+  productName: string
+  productPrice: string
   storeLogoUrl?: string
   productImageUrl?: string
+  successUrl?: string
+  errorUrl?: string
 }
 
 class Checkout extends React.Component<CheckoutProps, any> {
-  async onCardReady(data: CardFormData): Promise<string | null> {
+  async onCardReady(_data: CardFormData): Promise<string | null> {
     // TODO: Perform API request(s) here
     return new Promise(resolve => {
       setTimeout(() => {
@@ -88,7 +92,11 @@ class Checkout extends React.Component<CheckoutProps, any> {
         <div className="checkout-container">
           <div className="checkout-info">
             <div className="flex-initial flex-col space-y-6 justify-center xs:w-96">
-              <CheckoutInfoHeader storeName={this.props.storeName} storeLogo={this.props.storeLogoUrl} />
+              <CheckoutInfoHeader
+                storeName={this.props.storeName}
+                storeUrl={this.props.storeUrl}
+                storeLogo={this.props.storeLogoUrl}
+              />
               <CheckoutInfoContent {...this.props} />
             </div>
           </div>
